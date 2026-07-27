@@ -1,0 +1,19 @@
+- name: Restart Prometheus Container
+  command: docker restart monitoring-prometheus
+  when: inventory_hostname == 'ops-core-01'
+  become: true
+  register: restart_prom
+  failed_when:
+    - restart_prom.rc != 0
+    - "'No such container' not in restart_prom.stderr"
+
+- name: Restart Loki Container
+  command: docker restart monitoring-loki
+  when: inventory_hostname == 'ops-core-01'
+  become: true
+  register: restart_loki
+  failed_when:
+    - restart_loki.rc != 0
+    - "'No such container' not in restart_loki.stderr"
+
+  

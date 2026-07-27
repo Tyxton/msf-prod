@@ -1,0 +1,28 @@
+# Ansible Secrets
+*vault.yaml
+.vault_pass
+*secret/*
+
+# Environment Files
+.env
+.env.local
+stack.env
+**/.env
+**/stack.env
+
+# Keep .env.example
+!*.env.example
+
+# Local Data
+*.db
+*.sqlite
+**/*.db
+**/data/
+
+# General System Junk
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE/Text Editor
+.nvim/

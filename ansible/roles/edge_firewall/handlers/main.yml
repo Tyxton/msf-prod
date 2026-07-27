@@ -1,0 +1,9 @@
+- name: Reload nftables
+  ansible.builtin.service:
+    name: nftables
+    state: reloaded
+
+- name: Restart Docker
+  ansible.builtin.service:
+    name: docker
+    state: reloaded

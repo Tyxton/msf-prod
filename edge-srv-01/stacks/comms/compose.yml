@@ -1,0 +1,27 @@
+services:
+  ntfy:
+    image: binwiederhier/ntfy
+    container_name: comms-ntfy
+    command:
+      - serve
+    environment:
+      - NTFY_BASE_URL=${NTFY_URL}
+      - NTFY_BEHIND_PROXY=true
+      - NTFY_ATTACHMENT_CACHE_DIR=/var/cache/ntfy
+      - NTFY_ENABLE_LOGIN=true
+      - NTFY_AUTH_FILE=/var/lib/ntfy/auth.db
+      - NTFY_UPSTREAM_BASE_URL=https://ntfy.sh
+    volumes:
+      - ${DOCKER_DIR}/ntfy/cache:/var/cache/ntfy
+      - ${DOCKER_DIR}/ntfy/etc:/etc/ntfy
+      - ${DOCKER_DIR}/ntfy/lib:/var/lib/ntfy
+    networks:
+      -  npm-edge
+    ports:
+      - 8080:80
+    restart: unless-stopped
+
+networks:
+  npm-edge:
+    external: true
+    name: npm-edge

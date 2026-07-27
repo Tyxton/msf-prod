@@ -1,0 +1,58 @@
+- name: Configure System Infrastructure
+  hosts: lxc_nodes:vm_nodes
+  become: true
+  roles:
+    - unattended_upgrades
+  tags:
+    - system
+
+- name: Deploy Docker Engine
+  hosts: docker_nodes
+  become: true
+  roles:
+    - configure_docker
+  tags:
+    - docker_engine
+
+- name: Configure Edge Firewall
+  hosts: edge-srv-01
+  become: true
+  roles:
+    - edge_firewall
+  tags:
+    - edge_nodes
+    - system
+
+- name: Deploy Crowdsec Instances
+  hosts: ops-core-01:crowdsec_agents
+  become: true
+  roles:
+    - configure_crowdsec
+  tags:
+    - crowdsec
+
+- name: Configure Prometheus & Loki
+  hosts: ops-core-01
+  become: true
+  roles:
+    - configure_monitoring
+  tags:
+    - monitoring
+
+- name: Configure Alloy
+  hosts: lxc_nodes:vm_nodes
+  become: true
+  roles:
+    - configure_alloy
+  tags:
+    - alloy
+
+- name: Deploy Docker Stacks
+  hosts: docker_nodes
+  become: true
+  roles:
+    - docker_stacks
+  tags:
+    - docker_stacks
+
+

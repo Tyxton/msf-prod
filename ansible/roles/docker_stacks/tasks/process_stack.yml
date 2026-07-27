@@ -1,0 +1,42 @@
+- name: Collate active features for {{ stack_item.name }}
+  ansible.builtin.set_fact:
+    active_features: "{{ (default_stack_features + (stack_item.features | default([]))) | difference(stack_item.exclude_features | default([])) | unique }}"
+
+- name: Initialize feature_based_vars
+  ansible.builtin.set_fact:
+    feature_based_vars: {}
+
+- name: Build feature_based_vars for {{ stack_item.name }}
+  ansible.builtin.set_fact:
+    feature_based_vars: "{{ feature_based_vars | combine(features_map[item], recursive=True) }}"
+  loop: "{{ active_features }}"
+
+- name: Merge stack-specific environment variables
+  ansible.builtin.set_fact:
+    feature_based_vars: "{{ feature_based_vars | combine(stack_item.env | default({}), recursive=True) }}"
+
+- name: Find compose files
+  ansible.builtin.find:
+    paths: "/opt/stacks/{{ stack_item.name }}"
+    patterns: "compose.yml"
+  register: compose_files
+
+- name: Inject dynamic .env files
+  ansible.builtin.template:
+    src: "env.j2"
+    dest: "{{ item.path | dirname }}/.env"
+  loop: "{{ compose_files.files }}"
+
+- name: Set .env permissions
+  ansible.builtin.file:
+    path: "{{ item.path | dirname }}/.env"
+    mode: "0600"
+    owner: "root"
+  loop: "{{ compose_files.files }}"
+  when: "(item.path | dirname + '/.env') is exists"
+
+- name: "Deploy docker stack {{ stack_item.name }}"
+  community.docker.docker_compose_v2:
+    project_src: "/opt/stacks/{{ stack_item.name }}"
+    state: present
+    remove_orphans: true

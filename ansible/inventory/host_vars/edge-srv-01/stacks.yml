@@ -1,0 +1,34 @@
+stacks:
+  - name: bdtracker
+    features: []
+    exclude_features: ['tz', 'docker_dir']
+    env:
+      MASTER_KEY: "{{ vault_bdtracker_key }}"
+      BDTRACKER_MNT: "{{ vault_bdtracker_mnt }}"
+      BD_ALLOWED_HOSTS: "{{ vault_bdtracker_hosts }}"
+      BD_ALLOWED_ORIGINS: "{{ vault_bdtracker_origins }}"
+  - name: comms
+    features: []
+    exclude_features: ['tz']
+    env:
+      NTFY_URL: "{{ vault_ntfy_base_url }}"
+  - name: edge-network
+    features: []
+  - name: hytale-server
+    features: []
+  - name: infra
+    features: []
+    exclude_features: ['tz']
+  - name: itim
+    features: []
+    exclude_features: ['tz']
+  - name: media-delivery
+    features: []
+    env:
+      JELLYFIN_PUID: "{{ vault_jellyfin_puid }}"
+      JELLYFIN_GUID: "{{ vault_jellyfin_pgid }}"
+      SEERR_USER: "{{ vault_seerr_user }}"
+      MEDIA_DIR: "{{ vault_media_dir }}"
+  - name: nottyxton-net
+    features: []
+    exclude_features: ['tz']

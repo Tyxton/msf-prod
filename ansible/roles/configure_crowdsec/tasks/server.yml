@@ -1,0 +1,79 @@
+- name: Create MSF Allowlist (Idempotent)
+  ansible.builtin.command: >
+    cscli allowlists create msf_allowlist -d 'MSF Architecture Whitelist'
+  become: true
+  register: create_allowlist
+  failed_when:
+    - create_allowlist.rc != 0
+    - "'already exists' not in create_allowlist.stderr"
+  changed_when:
+    - "'already exists' not in create_allowlist.stderr"
+
+- name: Populate MSF Allowlist
+  ansible.builtin.command: "cscli allowlist add msf_allowlist {{ item }}"
+  become: true
+  loop:
+    - 10.20.0.0/24
+    - 10.30.0.0/24
+    - 10.40.0.50
+    - 10.50.0.0/24
+  when: create_allowlist.rc != 0
+  notify: Restart Crowdsec
+
+- name: Install Collections
+  ansible.builtin.command: "cscli collections install {{ item }}"
+  become: true
+  loop:
+    - crowdsecurity/nginx
+    - crowdsecurity/nginx-proxy-manager
+    - crowdsecurity/base-http-scenarios
+    - crowdsecurity/linux
+    - crowdsecurity/unifi
+    - crowdsecurity/appsec-virtual-patching
+    - crowdsecurity/appsec-generic-rules
+    - crowdsecurity/appsec-crs
+  register: collection_install
+  changed_when: "'msg=\"collection installed\"' in collection_install.stdout or 'installed' in collection_install.stdout"
+  notify: Restart Crowdsec
+
+- name: Ensure Crowdsec acquis dir exists
+  ansible.builtin.file:
+    path: /etc/crowdsec/acquis.d
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Configure NPM log acquis
+  ansible.builtin.template:
+    src: acquis_npm.yaml.j2
+    dest: /etc/crowdsec/acquis.d/nginx-proxy-manager.yaml
+    mode: '0644'
+  become: true
+  notify: Restart Crowdsec
+
+- name: Ensure Crowdsec config exists
+  ansible.builtin.file:
+    path: /etc/crowdsec/config.yaml
+    state: file
+  become: true
+
+- name: Update Crowdsec LAPI listen port (config.yaml)
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/config.yaml
+    regexp: '^\s*listen_uri:'
+    line: '    listen_uri: 0.0.0.0:8085'
+    state: present
+  become: true
+  notify: Restart Crowdsec
+
+- name: Update local API credentials URL port
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/local_api_credentials.yaml
+    regexp: '^url\s*:'
+    line: 'url: http://127.0.0.1:8085'
+    state: present
+  become: true
+  notify: Restart Crowdsec
+
+- name: Register Crowdsec Agents
+  ansible.builtin.include_tasks: register_agents.yml

@@ -1,0 +1,56 @@
+services:
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    user: "0:0"
+    privileged: true
+    ports:
+      - "12345:12345"
+      - "1514:1514/udp"
+      - "1514:1514/tcp"
+    networks:
+      - itim
+    volumes:
+      # Config
+      - ${DOCKER_DIR}/alloy/config.alloy:/etc/alloy/config.alloy:ro
+
+      # Docker & Container Management
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
+
+      # System Logging & Identity
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+
+      # Host Metrics, Storage, & Cgroups
+      - /:/host:ro
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+      - /dev/disk/:/dev/disk:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+
+  nvidia-dcgm-exporter:
+    image: nvidia/dcgm-exporter:latest
+    container_name: itim-dcgm-exporter
+    restart: unless-stopped
+    networks:
+      - itim
+    cap_add:
+      - SYS_ADMIN
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "9400:9400"
+
+networks:
+  itim:
+    name: itim
+    driver: bridge

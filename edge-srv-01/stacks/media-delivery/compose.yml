@@ -1,0 +1,53 @@
+services:
+  jellyfin:
+    container_name: media-jellyfin
+    image: jellyfin/jellyfin
+    runtime: nvidia
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+      - NVIDIA_VISIBLE_DEVICES=all
+      - TZ=${TZ:-America/Chicago}
+      - PUID=${JELLYFIN_PUID:-1000}
+      - PGID=${JELLYFIN_GUID:-1000}
+    ports:
+      - 8096:8096
+    volumes:
+      - ${MEDIA_DIR}/movies:/Movies
+      - ${MEDIA_DIR}/tv:/TV
+      - ${DOCKER_DIR}/jellyfin/config:/config
+    restart: unless-stopped
+    networks:
+      npm-edge:
+        aliases:
+          - media-jellyfin
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: media-seerr
+    user: "${SEERR_USER}"
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+    ports:
+      - 5055:5055
+    volumes:
+      - ${DOCKER_DIR}/jellyseer/config:/app/config
+    environment:
+      - TZ=${TZ:-America/Chicago}
+    restart: unless-stopped
+    networks:
+      - npm-edge
+
+networks:
+  npm-edge:
+    external: true
+    name: npm-edge

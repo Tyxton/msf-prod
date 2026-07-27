@@ -1,0 +1,12 @@
+- name: Sync stacks to host
+  ansible.builtin.copy:
+    src: "../../{{ inventory_hostname }}/stacks/"
+    dest: /opt/stacks
+    directory_mode: '0755'
+    mode: '0644'
+
+- name: Process Stacks
+  ansible.builtin.include_tasks: process_stack.yml
+  loop: "{{ stacks }}"
+  loop_control:
+    loop_var: stack_item

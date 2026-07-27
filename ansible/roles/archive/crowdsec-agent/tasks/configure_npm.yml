@@ -1,0 +1,28 @@
+- name: Ensure NPM custom directory exists
+  ansible.builtin.file:
+    path: /opt/docker-data/npm/data/nginx/custom
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Deploy Cloudflare Real-IP HTTP conf to NPM
+  ansible.builtin.template:
+    src: http.conf.j2
+    dest: /opt/docker-data/npm/data/nginx/custom/http.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart NPM Container
+
+- name: Deploy Cloudflare Real-IP Server conf to NPM
+  ansible.builtin.template:
+    src: server_proxy.conf.j2
+    dest: /opt/docker-data/npm/data/nginx/custom/server_proxy.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart NPM Container

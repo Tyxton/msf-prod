@@ -1,0 +1,74 @@
+- name: Ensure keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Ensure keyrings and prereqs installed
+  ansible.builtin.apt:
+    pkg:
+      - debian-archive-keyring
+      - gnupg
+      - apt-transport-https
+    state: present
+    update_cache: true
+  become: true
+
+- name: Add Crowdsec Repository
+  ansible.builtin.deb822_repository:
+    name: crowdsec
+    types: deb
+    uris: https://packagecloud.io/crowdsec/crowdsec/debian/
+    suites: bookworm
+    components: main
+    signed_by: https://packagecloud.io/crowdsec/crowdsec/gpgkey
+  become: true
+  register: crowdsec_repo
+
+- name: Force apt cache update for new repo
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: crowdsec_repo.changed and not ansible_check_mode
+
+- name: Install CrowdSec Security Engine
+  ansible.builtin.apt:
+    pkg:
+      - crowdsec
+      - crowdsec-firewall-bouncer
+    state: present
+    update_cache: true
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"
+  notify: Restart Crowdsec
+
+- name: Ensure Crowdsec service is enabled and running
+  ansible.builtin.systemd_service:
+    name: crowdsec
+    state: started
+    enabled: true
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Finalize Server Deployment
+  ansible.builtin.include_tasks: server.yml
+  when: inventory_hostname == 'ops-core-01'
+
+- name: Finalize Agent Deployment
+  ansible.builtin.include_tasks: agent.yml
+  when: inventory_hostname in groups['crowdsec_agents'] | default([])
+
+- name: Ensure Crowdsec service is enabled and running
+  ansible.builtin.systemd_service:
+    name: crowdsec
+    state: started
+    enabled: true
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Validate Crowdsec config syntax
+  ansible.builtin.command: crowdsec -t
+  become: true
+  changed_when: false
+  when: not ansible_check_mode

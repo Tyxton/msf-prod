@@ -1,0 +1,11 @@
+firewall_ssh_ips:
+  - 10.30.0.200
+  - 10.30.0.201
+  - 10.30.0.202
+
+vpn_clients_subnet: 10.80.0.0/24
+untrusted_subnet: 10.10.0.0/24
+
+storage_interface: enp6s19
+
+has_gpu: true

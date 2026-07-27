@@ -1,0 +1,343 @@
+// ======================= //
+// [ GLOBAL ALLOY CONFIG ] //
+// ======================= //
+
+// [ ALLOY HOST: {{ inventory_hostname }} ]
+
+// ------------------ //
+//   GLOBAL WRITERS   //
+// ------------------ //
+
+{% if metrics_aggregator | default(false) %}
+prometheus.remote_write "default" {
+    endpoint { url = "http://monitoring-prometheus:9090/api/v1/write" }
+}
+
+loki.write "default" {
+    endpoint { url = "http://monitoring-loki:3100/loki/api/v1/push" }
+}
+{% else %}
+prometheus.remote_write "default" {
+    endpoint { url = "http://{{ metrics_agg_ip }}:9090/api/v1/write" }
+}
+
+loki.write "default" {
+    endpoint { url = "http://{{ metrics_agg_ip }}:3100/loki/api/v1/push" }
+}
+{% endif %}
+
+// ---------------------------- //
+//   LOCAL METRICS & EXPORTERS  //
+// ---------------------------- //
+
+prometheus.exporter.unix "host" {
+    rootfs_path = "/host"
+    sysfs_path = "/host/sys"
+    procfs_path = "/host/proc"
+}
+
+prometheus.exporter.cadvisor "docker" {
+    docker_host = "unix:///var/run/docker.sock"
+}
+
+prometheus.scrape "unix_metrics" {
+    targets    = prometheus.exporter.unix.host.targets
+    forward_to = [prometheus.relabel.global_host_override.receiver]
+    job_name   = "integrations/unix"
+}
+
+prometheus.scrape "cadvisor_metrics" {
+    targets    = prometheus.exporter.cadvisor.docker.targets
+    forward_to = [prometheus.relabel.cadvisor_processing.receiver]
+    job_name   = "integrations/cadvisor"
+}
+
+prometheus.relabel "global_host_override" {
+    forward_to = [prometheus.remote_write.default.receiver]
+
+    rule {
+        target_label = "instance"
+        replacement  = "{{ inventory_hostname }}"
+    }
+
+    rule {
+        target_label = "nodename"
+        replacement = "{{ inventory_hostname }}"
+    }
+
+    rule {
+        target_label = "Hostname"
+        replacement  = "{{ inventory_hostname }}"
+    }
+}
+
+prometheus.relabel "cadvisor_processing" {
+    forward_to = [prometheus.remote_write.default.receiver]
+
+    rule {
+        target_label = "instance"
+        replacement  = "{{ inventory_hostname }}"
+    }
+
+    rule {
+        target_label = "nodename"
+        replacement = "{{ inventory_hostname }}"
+    }
+    
+    rule {
+        source_labels = ["name"]
+        target_label  = "container"
+    }
+
+    rule {
+        source_labels = ["name"]
+        target_label  = "id"
+    }
+
+    rule {
+        target_label = "Hostname"
+        replacement  = "{{ inventory_hostname }}"
+    }
+}
+
+{% if has_gpu | default(false) %}
+// SIDECAR DCGM_NODE_EXPORTER
+prometheus.scrape "gpu_metrics" {
+    targets    = [{"__address__" = "itim-dcgm-exporter:9400"}]
+    forward_to = [prometheus.relabel.gpu_processing.receiver]
+    job_name   = "nvidia-dcgm"
+}
+
+prometheus.relabel "gpu_processing" {
+    forward_to = [prometheus.remote_write.default.receiver]
+
+    rule {
+        target_label = "nodename"
+        replacement  = "{{ inventory_hostname }}"
+    }
+
+    rule {
+        target_label = "instance"
+        replacement  = "{{inventory_hostname }}"
+    }
+
+    rule {
+        source_labels = ["modelName"]
+        target_label  = "gpu"
+    }
+
+    rule {
+        target_label = "Hostname"
+        replacement  = "{{ inventory_hostname }}"
+    }
+}
+{% endif %}
+
+{% if metrics_aggregator | default(false) %}
+// ---------------------------------- //
+//  FLEET SCRAPING (AGGREGATOR ONLY)  //
+// ---------------------------------- //
+
+discovery.relabel "fleet_base" {
+    targets = [
+    {% for host in groups['prom_endpoint'] | default([]) %}
+        { "__address__" = "{{ hostvars[host].ansible_host | default(host) }}:9100", "instance" = "{{ host }}" },
+    {% endfor %}
+    ]
+}
+
+// Node Exporter Fleet Scraping
+prometheus.scrape "node_exporter_fleet" {
+    targets         = discovery.relabel.fleet_base.output
+    forward_to      = [prometheus.remote_write.default.receiver]
+    job_name        = "node-exporter"
+    scrape_interval = "15s"
+}
+
+// cAdvisor Fleet Relabeling (Maps 9100 node-exporter port to 8080 cAdvisor port)
+discovery.relabel "cadvisor_targets" {
+    targets = discovery.relabel.fleet_base.output
+    rule {
+        source_labels = ["__address__"]
+        regex         = "(.*):9100"
+        replacement   = "$1:8080"
+        target_label  = "__address__"
+    }
+}
+
+prometheus.scrape "cadvisor_fleet" {
+    targets         = discovery.relabel.cadvisor_targets.output
+    forward_to      = [prometheus.remote_write.default.receiver]
+    job_name        = "cadvisor"
+    scrape_interval = "30s"
+}
+
+// Unifi Unpoller Scraping
+prometheus.scrape "unpoller" {
+    targets         = [{"__address__" = "monitoring-unpoller:9130"}]
+    forward_to      = [prometheus.remote_write.default.receiver]
+    job_name        = "unifi-network"
+    scrape_interval = "30s"
+}
+
+// Motherbase Graphite Push Scraping
+prometheus.scrape "motherbase_graphite" {
+    targets         = [{"__address__" = "monitoring-graphite:9108"}]
+    forward_to      = [prometheus.remote_write.default.receiver]
+    job_name        = "motherbase-push"
+    scrape_interval = "30s"
+}
+{% endif %}
+
+// ---------------------- //
+//  LOGS, SYSLOG, & LOKI  //
+// ---------------------- //
+
+loki.relabel "journal" {
+    forward_to = []
+
+    rule {
+        source_labels = ["__journal__systemd_unit"]
+        target_label  = "unit"
+    }
+
+    rule {
+        source_labels = ["__journal__boot_id"]
+        target_label  = "boot_id"
+    }
+
+    rule {
+        source_labels = ["__journal_transport"]
+        target_label  = "transport"
+    }
+
+    rule {
+        source_labels = ["__journal_priority_keyword"]
+        target_label  = "level"
+    }
+
+    rule {
+        source_labels = ["__journal__hostname"]
+        target_label  = "instance"
+    }
+}
+
+loki.source.journal "systemd_logs" {
+    forward_to    = [loki.process.fleet_logs.receiver]
+    relabel_rules = loki.relabel.journal.rules
+    labels = {
+        "job" = "integrations/node_exporter",
+    }
+}
+
+discovery.docker "linux" {
+    host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "logs_integrations_docker" {
+    targets = []
+
+    rule {
+        target_label = "job"
+        replacement  = "integrations/docker"
+    }
+
+    rule {
+        target_label = "instance"
+        replacement  = "{{ inventory_hostname }}"
+    }
+
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = "/(.*)"
+        target_label  = "container"
+    }
+
+    rule {
+        source_labels = ["__meta_docker_container_log_stream"]
+        target_label  = "stream"
+    }
+}
+
+loki.source.docker "default" {
+    host          = "unix:///var/run/docker.sock"
+    targets       = discovery.docker.linux.targets
+    relabel_rules = discovery.relabel.logs_integrations_docker.rules
+    labels        = {}
+    forward_to    = [
+        loki.process.fleet_logs.receiver,
+    ]
+}
+
+{% if metrics_aggregator | default(false) %}
+loki.source.syslog "motherbase_logs" {
+    listener {
+        address  = "0.0.0.0:1514"
+        protocol = "udp"
+    }
+    forward_to = [loki.process.fleet_logs.receiver]
+}
+{% endif %}
+
+// Normalization & Parsing Pipeline (Handles Docker, Systemd, and Syslog uniformly)
+loki.process "fleet_logs" {
+  forward_to = [loki.write.default.receiver]
+
+  stage.json {
+    expressions = {
+      extracted_level = "level",
+      severity        = "severity",
+      json_message    = "log",
+    }
+  }
+
+  // Fallback regex for standard log levels
+  stage.regex {
+    expression = "(?i).*(?P<fallback_level>INFO|WARN|ERROR|ERR|DEBUG|NOTICE|CRITICAL).*"
+  }
+
+  // Consolidate log level hierarchy
+  stage.template {
+    source   = "working_level"
+    template = "{% raw %}{{ if .extracted_level }}{{ .extracted_level }}{{ else if .severity }}{{ .severity }}{{ else if .fallback_level }}{{ .fallback_level }}{{ else if .level }}{{ .level }}{{ else }}info{{ end }}{% endraw %}"
+  }
+
+  // Lowercase collation
+  stage.template {
+    source   = "working_level"
+    template = "{% raw %}{{ .working_level | lower }}{% endraw %}"
+  }
+
+  stage.replace {
+    source     = "working_level"
+    expression = "err|crit|fatal|panic|error"
+    replace    = "error"
+  }
+
+  stage.replace {
+    source     = "working_level"
+    expression = "warn|warning"
+    replace    = "warn"
+  }
+  
+  stage.replace {
+    source     = "working_level"
+    expression = "info|information|debug|notice"
+    replace    = "info"
+  }
+
+  // Finalize labels
+  stage.labels {
+    values = {
+      level             = "working_level",
+      unit              = "unit",
+      syslog_identifier = "__journal__syslog_identifier",
+    }
+  }
+
+  // Clean output formatting
+  stage.template {
+    source   = "message"
+    template = "{% raw %}{{ if .json_message }}{{ .json_message }}{{ else }}{{ .Entry }}{{ end }}{% endraw %}"
+  }
+}

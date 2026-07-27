@@ -1,0 +1,2 @@
+crowdsec_agent_password: "{{ lookup('ansible.builtin.password', playbook_dir + '/secret/crowdsec_edge_pass.txt chars=ascii_letters,digits length=32') }}"
+crowdsec_lapi_url: "http://10.20.0.50:8085"

@@ -1,0 +1,18 @@
+stacks:
+  - name: infra
+    features: []
+    exclude_features: ['tz']
+  - name: itim
+    features: []
+    exclude_features: ['tz']
+  - name: media-immich
+    features: []
+    env:
+      UPLOAD_LOCATION: "{{ vault_immich_upload_location }}"
+      DB_DATA_LOCATION: "{{ vault_immich_db_location }}"
+      IMMICH_VERSION: "{{ vault_immich_ver }}"
+      DB_PASSWORD: "{{ vault_immich_db_password }}"
+      DB_USERNAME: "{{ vault_immich_db_username }}"
+      DB_DATABASE_NAME: "{{ vault_immich_db_name }}"
+      IMMICH_MACHINE_LEARNING_URL: "{{ vault_immich_ml_url }}"
+      MACHINE_LEARNING_EAGER_STARTUP: false

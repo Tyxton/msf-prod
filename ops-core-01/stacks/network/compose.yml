@@ -1,0 +1,29 @@
+services:
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: network-adguardhome
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ${DOCKER_DIR}/adguard/work:/opt/adguardhome/work
+      - ${DOCKER_DIR}/adguard/conf:/opt/adguardhome/conf
+
+  internal-npm:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: network-internal-npm
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ${DOCKER_DIR}/npm/data:/data
+      - ${DOCKER_DIR}/npm/letsencrypt:/etc/letsencrypt
+    networks:
+      - npm-lan
+    
+networks:
+  npm-lan:
+    driver: bridge
+    name: npm-lan
+

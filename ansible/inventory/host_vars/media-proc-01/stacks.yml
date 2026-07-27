@@ -1,0 +1,13 @@
+stacks:
+  - name: infra
+    features: []
+    exclude_features: ['tz']
+  - name: itim
+    features: []
+    exclude_features: ['tz']
+  - name: media-proc
+    features: []
+    env:
+      ARR_PUID: "{{ vault_arr_puid }}"
+      ARR_PGID: "{{ vault_arr_pgid }}"
+      MEDIA_VOL: "{{ vault_media_vol }}"

@@ -1,0 +1,28 @@
+services:
+  nottyxton-web:
+    image: nginx:alpine
+    container_name: nottyxton-web
+    restart: unless-stopped
+    expose:
+      - '80'
+    volumes:
+      - ${DOCKER_DIR}/nginx/www-nottyxton-net/config/www:/usr/share/nginx/html:ro
+    networks:
+      - npm-edge
+
+  nottyxton-blog:
+    image: nginx:alpine
+    container_name: nottyxton-blog
+    restart: unless-stopped
+    expose:
+      - '80'
+    volumes:
+      - ${DOCKER_DIR}/nginx/blog-nottyxton-net:/var/www/html:ro
+      - ${DOCKER_DIR}/nginx/blog-nottyxton-net/blog-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - npm-edge
+
+networks:
+  npm-edge:
+    name: npm-edge
+    external: true

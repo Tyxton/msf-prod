@@ -1,0 +1,13 @@
+default_stack_features: ['tz', 'docker_dir']
+
+features_map:
+  tz:
+    TZ: 'America/Chicago'
+  docker_dir:
+    DOCKER_DIR: '/opt/docker-data'
+
+docker_dir: "/opt/docker-data"
+
+metrics_agg_ip: "10.20.0.50"
+metrics_aggregator: false
+has_gpu: false

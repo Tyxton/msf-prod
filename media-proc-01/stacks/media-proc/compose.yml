@@ -1,0 +1,90 @@
+networks:
+  internal-arr:
+    driver: bridge
+    name: internal-arr
+
+x-common-keys: &common-keys
+  environment:
+    - TZ=${TZ:-America/Chicago}
+    - PUID=${ARR_PUID}
+    - PGID=${ARR_PGID}
+  networks:
+    - internal-arr
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  cap_add:
+    - SETUID
+    - SETGID
+    - CHOWN
+  restart: unless-stopped
+
+services:
+
+  bazarr:
+    <<: *common-keys
+    container_name: "media-bazarr"
+    image: "linuxserver/bazarr"
+    ports:
+      - "6767:6767"
+    volumes:
+      - "${DOCKER_DIR}/bazarr/config:/config"
+      - "${MEDIA_VOL}:/data/media"
+
+  prowlarr:
+    <<: *common-keys
+    container_name: "media-prowlarr"
+    image: "lscr.io/linuxserver/prowlarr:latest"
+    ports:
+      - "9696:9696"
+    volumes:
+      - "${DOCKER_DIR}/prowlarr/config:/config"
+
+  radarr:
+    <<: *common-keys
+    container_name: "media-radarr"
+    image: "linuxserver/radarr"
+    ports:
+      - "7878:7878"
+    volumes:
+      - "${DOCKER_DIR}/radarr/config:/config"
+      - "${MEDIA_VOL}:/data/media"
+
+  sabnzbd:
+    <<: *common-keys
+    container_name: "media-sabnzbd"
+    image: "lscr.io/linuxserver/sabnzbd:latest"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "${DOCKER_DIR}/sabnzbd/config:/config"
+      - "${MEDIA_VOL}:/data/media"
+
+  sonarr:
+    <<: *common-keys
+    container_name: "media-sonarr"
+    image: "linuxserver/sonarr"
+    ports:
+      - "8989:8989"
+    volumes:
+      - "${DOCKER_DIR}/sonarr/config:/config"
+      - "${MEDIA_VOL}:/data/media"
+
+  rdtclient:
+    <<: *common-keys
+    container_name: "media-rdtclient"
+    image: rogerfar/rdtclient:latest
+    volumes:
+      - ${DOCKER_DIR}/rdtclient:/data/db
+      - ${MEDIA_VOL}:/data/media
+    ports:
+      - '6500:6500'
+      
+  flaresolverr:
+    <<: *common-keys
+    container_name: "media-flaresolverr"
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    ports:
+      - "8191:8191"
+

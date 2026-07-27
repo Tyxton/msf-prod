@@ -1,0 +1,36 @@
+stacks:
+  - name: access
+    features: []
+    exclude_features: ['tz']
+    env:
+      ADMIN_TOKEN: "{{ vault_vaultwarden_admin_token }}"
+      DOMAIN: "{{ vault_vaultwarden_domain }}"
+  - name: dev-tools
+    features: []
+    exclude_features: ['tz', 'docker_dir']
+    env:
+      GITEA_UID: "{{ vault_gitea_uid }}"
+      GITEA_GID: "{{ vault_gitea_gid }}"
+      GITEA_MNT: "{{ vault_gitea_mnt }}"
+  - name: home
+    features: []
+    env:
+      ACTUAL_MNT: "{{ vault_actual_mnt }}"
+  - name: infra
+    features: []
+    exclude_features: ['tz']
+  - name: monitoring
+    features: []
+    exclude_features: ['tz']
+    env:
+      UNIFI_PASS: "{{ vault_unifi_pass }}"
+      LOKI_MNT: "{{ vault_loki_mnt }}"
+      PROM_MNT: "{{ vault_prom_mnt }}"
+      UNIFI_USER: "{{ vault_unifi_user }}"
+      GW_URL: "{{ vault_gw_url }}"
+  - name: network
+    features: []
+    exclude_features: ['tz']
+    env:
+      COLLECTIONS_LIST: "{{ vault_crowdsec_collections }}"
+      

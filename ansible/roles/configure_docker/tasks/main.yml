@@ -1,0 +1,62 @@
+- name: Ensure conflicting packages not present
+  ansible.builtin.apt:
+    pkg:
+      - docker.io
+      - docker-compose
+      - docker-doc
+      - podman-docker
+      - containerd
+      - runc
+    state: absent
+  become: true
+
+- name: Ensure Pre-reqs exist
+  ansible.builtin.apt:
+    pkg:
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: true
+  become: true
+
+- name: Get DPKG Architecture
+  ansible.builtin.command: dpkg --print-architecture
+  register: dpkg_arch
+  changed_when: false
+
+- name: Add Docker Engine Repository
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/debian
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: stable
+    architectures: "{{ dpkg_arch.stdout }}"
+    signed_by: https://download.docker.com/linux/debian/gpg
+  become: true
+  register: docker_repo
+
+- name: Force apt cache update for new repo
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: docker_repo.changed and not ansible_check_mode
+
+- name: Intall Docker Engine
+  ansible.builtin.apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+  become: true
+
+- name: Verify Docker Engine running
+  ansible.builtin.systemd_service:
+    name: docker.service
+    state: started
+    enabled: true
+  become: true
+

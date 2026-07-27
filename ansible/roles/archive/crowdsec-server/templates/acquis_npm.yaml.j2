@@ -1,0 +1,14 @@
+filenames:
+  - /opt/docker-data/npm/data/logs/proxy-host-*_access.log
+labels:
+  type: nginx
+---
+filenames:
+  - /opt/docker-data/npm/data/logs/proxy-host-*_error.log
+labels:
+  type: nginx
+---
+filenames:
+  - /opt/docker-data/npm/data/logs/letsencrypt.log*
+labels:
+  type: npm-letsencrypt

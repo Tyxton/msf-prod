@@ -1,0 +1,8 @@
+- name: Restart Alloy Container
+  ansible.builtin.shell: |
+    docker restart alloy
+  become: true
+  register: restart_alloy
+  failed_when:
+    - restart_alloy.rc != 0
+    - "'No such container' not in restart_alloy.stderr"

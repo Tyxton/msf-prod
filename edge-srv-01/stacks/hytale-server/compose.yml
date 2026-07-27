@@ -1,0 +1,21 @@
+services:
+  hytale-server:
+    image: deinfreu/hytale-server:latest
+    container_name: hytale-server
+    environment:
+      - XMX=8G
+      - XMS=8G
+      - TZ=${TZ:-America/Chicago}
+      - AUTO_UPDATE=true
+    volumes:
+      - ${DOCKER_DIR}/hytale:/home/container
+      - ${DOCKER_DIR}/hytale/hytale-machine-id:/etc/machine-id:ro
+    ports:
+      - "5520:5520/udp" # Hytale Game Traffic (QUIC)
+      - "5533:5533/udp" # Query Port
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+

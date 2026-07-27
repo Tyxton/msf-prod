@@ -1,0 +1,2 @@
+crowdsec_npm_log_path: /opt/docker-data/npm/data/logs/*_access.log
+metrics_aggregator: true

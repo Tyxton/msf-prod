@@ -1,0 +1,29 @@
+- name: Ensure config dirs exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ docker_dir }}/prometheus"
+    - "{{ docker_dir }}/loki"
+  when: inventory_hostname == 'ops-core-01'
+
+- name: Inject prom config
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ docker_dir }}/prometheus/prometheus.yml"
+    mode: '0644'
+  notify: Restart Prometheus Container
+  when: inventory_hostname == 'ops-core-01'
+  tags:
+    - prometheus
+
+- name: Inject loki conf
+  template:
+    src: loki.yaml.j2
+    dest: "{{ docker_dir }}/loki/loki.yaml"
+    mode: '0644'
+  notify: Restart Loki Container
+  when: inventory_hostname == 'ops-core-01'
+  tags:
+    - loki

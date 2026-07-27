@@ -1,0 +1,66 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        # Accept Established/Related
+        ct state established, related accept
+        iif lo accept
+
+        # Storage Traffic
+        iifname "{{ storage_interface }}" accept
+
+        # DNS
+        tcp dport 53 accept
+        udp dport 53 accept
+
+        # NFS / RPC
+        ip saddr {{ motherbase_ip }} tcp dport { 111, 2049 } accept
+        ip saddr {{ motherbase_ip }} udp dport { 111, 2049 } accept
+
+        # ICMP/Ping
+        ip protocol icmp accept
+        ip6 nexthdr icmpv6 accept
+
+        # Web Services
+        tcp dport { 80, 443 } accept
+
+        # SSH Access
+        {% for ip in firewall_ssh_ips %}
+        ip saddr {{ ip }} tcp dport 2222 accept
+        {% endfor %}
+
+        ip saddr {{ vpn_clients_subnet }} tcp dport 2222 accept
+
+        # Untrusted Access
+        ip saddr {{ untrusted_subnet }} accept
+        
+        # Hytale
+        udp dport { 5520, 5533 } accept
+       
+        # Crowdsec Server
+
+        ip saddr {{ ops_core_01_ip }} tcp dport 8085 accept
+
+        # VPN Client Rules (MGMT)
+        ip saddr {{ vpn_clients_subnet }} tcp dport { 3000, 5200, 5300, 80, 443 } accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+
+        # Allow Established/Related
+        ct state established, related accept
+
+        # Docker Traffic
+        iifname { "docker0", "br-*" } accept
+        oifname { "docker0", "br-*" } accept
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}

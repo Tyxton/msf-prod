@@ -1,0 +1,21 @@
+services:
+  bdtracker:
+    image: bdtracker:latest
+    container_name: bdtracker
+    restart: unless-stopped
+    networks:
+      - npm-edge
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${BDTRACKER_MNT}:/data
+    environment:
+      - BD_DB_PATH=/data/bdtracker.db
+      - BD_ALLOWED_HOSTS=${BD_ALLOWED_HOSTS}
+      - BD_ALLOWED_ORIGINS=${BD_ALLOWED_ORIGINS}
+      - BD_ADMIN_MASTER_KEY=${MASTER_KEY}
+
+networks:
+  npm-edge:
+    external: true
+    name: npm-edge

@@ -1,0 +1,64 @@
+- name: Install Collections
+  ansible.builtin.command: "cscli collections install {{ item }}"
+  become: true
+  loop:
+    - crowdsecurity/nginx
+    - crowdsecurity/nginx-proxy-manager
+    - crowdsecurity/base-http-scenarios
+    - crowdsecurity/linux
+    - crowdsecurity/appsec-virtual-patching
+    - crowdsecurity/appsec-generic-rules
+    - crowdsecurity/appsec-crs
+  register: collection_install
+  changed_when: "'msg=\"collection installed\"' in collection_install.stdout or 'installed' in collection_install.stdout"
+  notify: Restart Crowdsec
+
+- name: Ensure Crowdsec acquis dir exists
+  ansible.builtin.file:
+    path: /etc/crowdsec/acquis.d
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Configure NPM log acquis
+  ansible.builtin.template:
+    src: acquis_npm.yaml.j2
+    dest: /etc/crowdsec/acquis.d/nginx-proxy-manager.yaml
+    mode: '0644'
+  become: true
+  notify: Restart Crowdsec
+
+- name: Ensure Crowdsec config exists
+  ansible.builtin.file:
+    path: /etc/crowdsec/config.yaml
+    state: file
+  become: true
+
+- name: Populate Crowdec local config overrides
+  ansible.builtin.template:
+    src: config.yaml.local.j2
+    dest: /etc/crowdsec/config.yaml.local
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart Crowdsec
+
+- name: Ensure LAPI config exists
+  ansible.builtin.file:
+    path: /etc/crowdsec/local_api_credentials.yaml
+    state: file
+  become: true
+
+- name: Deploy LAPI connection creds
+  ansible.builtin.template:
+    src: local_api_credentials.yaml.j2
+    dest: /etc/crowdsec/local_api_credentials.yaml
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  notify: Restart Crowdsec
+
+- name: Configure NPM
+  ansible.builtin.include_tasks: npm.yml
