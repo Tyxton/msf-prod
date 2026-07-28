@@ -5,11 +5,11 @@ server:
   grpc_listen_port: 9095
 
 common:
-  path_prefix: /tmp/loki
+  path_prefix: /loki
   storage:
     filesystem:
-      chunks_directory: /tmp/loki/chunks
-      rules_directory: /tmp/loki/rules
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
   replication_factor: 1
   ring:
     instance_addr: 127.0.0.1
@@ -28,7 +28,7 @@ schema_config:
 
 storage_config:
   filesystem:
-    directory: /tmp/loki/storage
+    directory: /loki/storage
 
 limits_config:
   reject_old_samples: true
@@ -37,7 +37,7 @@ limits_config:
   retention_period: 168h
 
 compactor:
-  working_directory: /tmp/loki/compactor
+  working_directory: /loki/compactor
   compaction_interval: 10m
   retention_enabled: true
   retention_delete_delay: 2h
