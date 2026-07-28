@@ -1,0 +1,43 @@
+- name: Ensure Repository Exists
+  ansible.builtin.deb822_repository:
+    name: alloy
+    types: deb
+    uris: https://apt.grafana.com
+    suites: stable
+    components: main
+    signed_by: https://apt.grafana.com/gpg-full.key
+  become: true
+  register: alloy_repo
+
+- name: Force apt cache update for new repo
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: alloy_repo.changed and not ansible_check_mode
+
+- name: Install Alloy
+  ansible.builtin.apt:
+    name: alloy
+    state: present
+    update_cache: true
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"
+  notify: Restart Alloy Service
+
+- name: Enable Alloy Service
+  ansible.builtin.systemd_service:
+    name: alloy
+    state: started
+    enabled: true
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Render and deploy alloy.config
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: "/etc/alloy/config.alloy"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart Alloy Service

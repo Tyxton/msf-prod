@@ -30,6 +30,7 @@ loki.write "default" {
 //   LOCAL METRICS & EXPORTERS  //
 // ---------------------------- //
 
+{% if inventory_hostname in groups['docker_nodes'] %}
 prometheus.exporter.unix "host" {
     rootfs_path = "/host"
     sysfs_path = "/host/sys"
@@ -42,7 +43,7 @@ prometheus.exporter.cadvisor "docker" {
 
 prometheus.scrape "unix_metrics" {
     targets    = prometheus.exporter.unix.host.targets
-    forward_to = [prometheus.relabel.global_host_override.receiver]
+    forward_to = [prometheus.relabel.host_processing.receiver]
     job_name   = "integrations/unix"
 }
 
@@ -52,7 +53,7 @@ prometheus.scrape "cadvisor_metrics" {
     job_name   = "integrations/cadvisor"
 }
 
-prometheus.relabel "global_host_override" {
+prometheus.relabel "host_processing" {
     forward_to = [prometheus.remote_write.default.receiver]
 
     rule {
@@ -99,6 +100,38 @@ prometheus.relabel "cadvisor_processing" {
         replacement  = "{{ inventory_hostname }}"
     }
 }
+{% else %}
+prometheus.exporter.unix "host" {
+    rootfs_path = "/"
+    procfs_path = "/proc"
+    sysfs_path  = "/sys"
+}
+
+prometheus.scrape "unix_metrics" {
+    targets    = prometheus.exporter.unix.host.targets
+    forward_to = [prometheus.relabel.host_processing.receiver]
+    job_name   = "integrations/unix"
+}
+
+prometheus.relabel "host_processing" {
+    forward_to = [prometheus.remote_write.default.receiver]
+
+    rule {
+        target_label = "instance"
+        replacement  = "{{ inventory_hostname }}"
+    }
+
+    rule {
+        target_label = "nodename"
+        replacement = "{{ inventory_hostname }}"
+    }
+
+    rule {
+        target_label = "Hostname"
+        replacement  = "{{ inventory_hostname }}"
+    }
+}
+{% endif %}
 
 {% if has_gpu | default(false) %}
 // SIDECAR DCGM_NODE_EXPORTER
@@ -129,6 +162,56 @@ prometheus.relabel "gpu_processing" {
     rule {
         target_label = "Hostname"
         replacement  = "{{ inventory_hostname }}"
+    }
+}
+{% endif %}
+
+{% if proxmox_aggregator | default(false) %}
+// ------------------------------ //
+//  PROXMOX METRICS (ops-itim-01) //
+// ------------------------------ //
+
+otelcol.receiver.otlp "pve_receiver" {
+    http {
+        endpoint = "0.0.0.0:4318"
+    }
+    grpc {
+        endpoint = "0.0.0.0:4317"
+    }
+
+    output {
+        metrics = [otelcol.processor.transform.pve_normalize.input]
+    }
+}
+
+otelcol.processor.transform "pve_normalize" {
+    error_mode = "ignore"
+    
+    output {
+        metrics = [otelcol.exporter.prometheus.to_prometheus.input]
+    }
+}
+
+otelcol.exporter.prometheus "to_prometheus" {
+    forward_to = [prometheus.relabel.pve_host_override.receiver]
+}
+
+prometheus.relabel "pve_host_override" {
+    forward_to = [prometheus.remote_write.default.receiver]
+
+    rule {
+        target_label = "instance"
+        replacement  = "raiden"
+    }
+
+    rule {
+        target_label = "nodename"
+        replacement  = "raiden"
+    }
+
+    rule {
+        target_label = "Hostname"
+        replacement  = "raiden"
     }
 }
 {% endif %}
@@ -207,12 +290,12 @@ loki.relabel "journal" {
     }
 
     rule {
-        source_labels = ["__journal_transport"]
+        source_labels = ["__journal__transport"]
         target_label  = "transport"
     }
 
     rule {
-        source_labels = ["__journal_priority_keyword"]
+        source_labels = ["__journal__priority_keyword"]
         target_label  = "level"
     }
 
@@ -230,6 +313,7 @@ loki.source.journal "systemd_logs" {
     }
 }
 
+{% if inventory_hostname in groups['docker_nodes'] %}
 discovery.docker "linux" {
     host = "unix:///var/run/docker.sock"
 }
@@ -268,14 +352,48 @@ loki.source.docker "default" {
         loki.process.fleet_logs.receiver,
     ]
 }
-
+{% endif %}
 {% if metrics_aggregator | default(false) %}
 loki.source.syslog "motherbase_logs" {
     listener {
         address  = "0.0.0.0:1514"
         protocol = "udp"
+        labels   = {
+            "job"      = "truenas/syslog",
+            "instance" = "motherbase",
+            "nodename" = "motherbase",
     }
     forward_to = [loki.process.fleet_logs.receiver]
+}
+{% endif %}
+
+{% if proxmox_aggregator | default(false) %}
+// ---------------------------- //
+//  PROXMOX LOGS (ops-itim-01)  //
+// ---------------------------- //
+local.file_match "host_logs" {
+    path_targets = [
+        {"__path__" = "/mnt/host/log/pve-firewall.log", "job" = "pve/firewall",  "instance" = "raiden", "nodename" = "raiden"},
+        {"__path__" = "/mnt/host/log/pve/tasks/**",     "job" = "pve/tasks",     "instance" = "raiden", "nodename" = "raiden"},
+        {"__path__" = "/mnt/host/log/pveam.log",        "job" = "pve/appliance", "instance" = "raiden", "nodename" = "raiden"},
+    ]
+}
+
+loki.source.file "host_logs_scrape" {
+    targets       = local.file_match.host_logs.targets
+    forward_to    = [loki.process.fleet_logs.receiver]
+}
+
+loki.source.journal "host_journal" {
+    path          = "/mnt/host/log/journal"
+    max_age       = "24h"
+    relabel_rules = loki.relabel.journal.rules
+    forward_to    = [loki.process.fleet_logs.receiver]
+    labels        = {
+        "job"      = "integrations/node-exporter",
+        "instance" = "raiden",
+        "nodename" = "raiden",
+    }
 }
 {% endif %}
 
@@ -291,9 +409,12 @@ loki.process "fleet_logs" {
     }
   }
 
-  // Fallback regex for standard log levels
+  // Fallback regex for standard log levels (non-greedy, word-bounded)
+  // Encountered a specific behaviour in Unifi Unpoller where this log:
+  // XXXX/XX/XX XX:XX:XX [INFO] UniFi Measurements Exported... Err: 0 ...
+  // Would map it as an ERROR because it would catch `Err:` before the INFO.
   stage.regex {
-    expression = "(?i).*(?P<fallback_level>INFO|WARN|ERROR|ERR|DEBUG|NOTICE|CRITICAL).*"
+    expression = "(?i).*?\\b(?P<fallback_level>CRITICAL|FATAL|ERROR|WARN(?:ING)?|INFO|DEBUG|NOTICE|TRACE)\\b"
   }
 
   // Consolidate log level hierarchy

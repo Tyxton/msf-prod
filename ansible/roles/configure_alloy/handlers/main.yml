@@ -6,3 +6,9 @@
   failed_when:
     - restart_alloy.rc != 0
     - "'No such container' not in restart_alloy.stderr"
+
+- name: Restart Alloy Service
+  ansible.builtin.systemd_service:
+    name: alloy
+    state: restarted
+  become: true

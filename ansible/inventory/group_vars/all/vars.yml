@@ -11,3 +11,4 @@ docker_dir: "/opt/docker-data"
 metrics_agg_ip: "10.20.0.50"
 metrics_aggregator: false
 has_gpu: false
+proxmox_aggregator: false

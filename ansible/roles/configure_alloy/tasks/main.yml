@@ -1,18 +1,7 @@
-- name: Ensure Grafana Alloy directory exists
-  ansible.builtin.file:
-    path: "/opt/docker-data/alloy"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-  become: true
+- name: Configure Docker Alloy Containers
+  ansible.builtin.include_tasks: docker.yml
+  when: inventory_hostname in groups['docker_nodes']
 
-- name: Render and deploy alloy.config
-  ansible.builtin.template:
-    src: config.alloy.j2
-    dest: "/opt/docker-data/alloy/config.alloy"
-    owner: root
-    group: root
-    mode: '0644'
-  become: true
-  notify: Restart Alloy Container
+- name: Configure Bare Alloy Instances
+  ansible.builtin.include_tasks: bare.yml
+  when: inventory_hostname in groups['alloy_bare']
