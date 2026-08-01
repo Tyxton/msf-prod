@@ -3,7 +3,8 @@
 *vault.yml
 vault.yml
 .vault_pass
-*secret/*
+secret/
+*/playbooks/secret/
 
 # Environment Files
 .env
