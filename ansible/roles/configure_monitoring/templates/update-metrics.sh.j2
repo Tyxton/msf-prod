@@ -1,0 +1,10 @@
+#!/bin/bash
+# This is a custom script to render the public version of the Grafana
+# dashboard and push it to edge-srv-01 for use on nottyxton.net
+curl -H "X-Auth-Token: {{ vault_render_token }}" \
+  -o /tmp/msf-render.png \
+  'http://localhost:8081/render?url=http://monitoring-grafana:3000/d/msf-db-cleaned/msf-masterview-cleaned?orgId=1%26from=now-12h%26to=now%26timezone=browser%26var-pve_nodes=raiden%26var-nodes=$__all%26var-truenas_nodes=monitoring-graphite:9108%26showCategory=panel-options-override-3%26theme=dark%26kiosk&width=1600&height=4500&encoding=png'
+
+rsync -avz -e "ssh -p 2222 -i /root/.ssh/ops_core_key" \
+    /tmp/msf-render.png \
+    root@{{ edge_srv_01_ip }}:{{ docker_dir }}/nginx/www-nottyxton-net/config/www/metrics/msf-metrics.png

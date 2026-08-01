@@ -1,0 +1,25 @@
+- name: Ensure working directory exists
+  ansible.builtin.file:
+    path: /opt/msf
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Create the render and rsync script
+  ansible.builtin.template:
+    src: update-metrics.sh.j2
+    dest: /opt/msf/update-metrics.sh
+    mode: '0755'
+  become: true
+
+- name: Run script to generate initial snapshot and rsync
+  ansible.builtin.command: /opt/msf/update-metrics.sh
+  become: true
+
+- name: Configure cron job to run every 30 minutes
+  ansible.builtin.cron:
+    name: "MSF Grafana Metrics Render and Rsync"
+    minute: "*/30"
+    job: "/opt/msf/update-metrics.sh >/dev/null 2>&1"
+    state: present
+  become: true

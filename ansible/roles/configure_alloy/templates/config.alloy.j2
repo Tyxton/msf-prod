@@ -259,7 +259,7 @@ prometheus.scrape "cadvisor_fleet" {
 prometheus.scrape "unpoller" {
     targets         = [{"__address__" = "monitoring-unpoller:9130"}]
     forward_to      = [prometheus.remote_write.default.receiver]
-    job_name        = "unifi-network"
+    job_name        = "unifi/network"
     scrape_interval = "30s"
 }
 
@@ -267,7 +267,7 @@ prometheus.scrape "unpoller" {
 prometheus.scrape "motherbase_graphite" {
     targets         = [{"__address__" = "monitoring-graphite:9108"}]
     forward_to      = [prometheus.remote_write.default.receiver]
-    job_name        = "motherbase-push"
+    job_name        = "truenas/motherbase"
     scrape_interval = "30s"
 }
 {% endif %}
@@ -362,6 +362,7 @@ loki.source.syslog "motherbase_logs" {
             "job"      = "truenas/syslog",
             "instance" = "motherbase",
             "nodename" = "motherbase",
+        }
     }
     forward_to = [loki.process.fleet_logs.receiver]
 }
@@ -431,7 +432,7 @@ loki.process "fleet_logs" {
 
   stage.replace {
     source     = "working_level"
-    expression = "err|crit|fatal|panic|error"
+    expression = "err|crit|critical|fatal|panic|error"
     replace    = "error"
   }
 

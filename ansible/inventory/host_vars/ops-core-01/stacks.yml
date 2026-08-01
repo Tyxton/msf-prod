@@ -28,6 +28,7 @@ stacks:
       PROM_MNT: "{{ vault_prom_mnt }}"
       UNIFI_USER: "{{ vault_unifi_user }}"
       GW_URL: "{{ vault_gw_url }}"
+      RENDER_TOKEN: "{{ vault_render_token }}"
   - name: network
     features: []
     exclude_features: ['tz']

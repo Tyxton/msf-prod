@@ -90,6 +90,13 @@ services:
       - "9080:3000"
     volumes:
       - ${DOCKER_DIR}/grafana_data:/var/lib/grafana
+    environment:
+      - GF_RENDERING_SERVER_URL=http://monitoring-renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://monitoring-grafana:3000/
+      - GF_LOG_FILTERS=rendering:debug
+      - GF_RENDERING_RENDERER_TOKEN=${RENDER_TOKEN}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
     depends_on:
       loki:
         condition: service_started
@@ -97,6 +104,21 @@ services:
         condition: service_started
       alloy:
         condition: service_started
+
+  grafana-renderer:
+    image: grafana/grafana-image-renderer:latest
+    container_name: monitoring-renderer
+    restart: unless-stopped
+    networks:
+      - core-itim
+    ports:
+      - "8081:8081"
+    environment:
+      - RENDERING_ARGS=--no-sandbox,--disable-gpu,--disable-dev-shm-usage
+      - CONCURRENCY=1
+      - GOMEMLIMIT=1GiB
+      - AUTH_TOKEN=${RENDER_TOKEN}
+      - BROWSER_MAX_HEIGHT=-1
 
   graphite-exporter:
     image: prom/graphite-exporter:latest

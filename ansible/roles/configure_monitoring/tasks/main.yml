@@ -27,3 +27,9 @@
   when: inventory_hostname == 'ops-core-01'
   tags:
     - loki
+
+- name: Configure Metrics Render and Sync for nottyxton.net
+  ansible.builtin.include_tasks: render.yml
+  when: inventory_hostname == 'ops-core-01'
+  tags:
+    - metrics_render

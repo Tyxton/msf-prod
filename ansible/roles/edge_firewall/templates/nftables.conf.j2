@@ -32,6 +32,7 @@ table inet filter {
         {% for ip in firewall_ssh_ips %}
         ip saddr {{ ip }} tcp dport 2222 accept
         {% endfor %}
+        ip saddr {{ ops_core_01_ip }} tcp dport 2222 accept
 
         tcp dport 2424 accept
 
@@ -44,11 +45,13 @@ table inet filter {
         udp dport { 5520, 5533 } accept
        
         # Crowdsec Server
-
         ip saddr {{ ops_core_01_ip }} tcp dport 8085 accept
 
         # VPN Client Rules (MGMT)
         ip saddr {{ vpn_clients_subnet }} tcp dport { 3000, 5200, 5300, 80, 443 } accept
+
+        # Dockge Agent
+        ip saddr {{ ops_core_01_ip }} tcp dport 5001 accept
     }
 
     chain forward {
