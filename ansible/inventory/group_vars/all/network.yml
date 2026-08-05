@@ -1,6 +1,15 @@
 ops_core_01_ip: 10.20.0.50
+ops_itim_01_ip: 10.20.0.51
 media_proc_01_ip: 10.30.0.50
 data_imgs_01_ip: 10.30.0.80
 edge_srv_01_ip: 10.40.0.50
 motherbase_ip: 10.20.0.10
 raiden_ip: 10.20.0.11
+
+motherbase_storage_ip: 10.50.0.1
+
+gw_ip: 10.20.0.1
+primary_dns: 10.20.0.50
+secondary_dns: 10.40.0.50
+tertiary_dns: 10.20.0.1
+dns_domain: msf.local

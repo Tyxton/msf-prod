@@ -1,0 +1,14 @@
+vmid: 350
+memory: 4096
+balloon: 0
+cores: 4
+cpu: "host,flags=+md-clear;+pcid;+aes"
+scsi:
+  scsi0: Dual1T_ZFS:vm-350-disk-0,iothread=1,size=200G
+scsihw: virtio-scsi-single
+net:
+  net0: "virtio={{ vault_media_proc_01_mac0 }},bridge=vmbr0,queues=4,tag=30"
+  net1: "virtio={{ vault_media_proc_01_mac1 }},bridge=vmbr0,queues=4,tag=50"
+name: media-proc-01
+onboot: true
+smbios: "uuid={{ vault_media_proc_01_uuid }}"

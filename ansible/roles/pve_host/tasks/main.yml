@@ -1,0 +1,20 @@
+- name: Configure System Timezone
+  ansible.builtin.include_tasks: system.yml
+
+- name: Configure Users/Groups/ACL
+  ansible.builtin.include_tasks: users.yml
+
+- name: Configure Network
+  ansible.builtin.include_tasks: network.yml
+
+- name: Configure System Storage
+  ansible.builtin.include_tasks: storage.yml
+
+- name: Configure LXCs/VMs
+  ansible.builtin.include_tasks: provision.yml
+
+- name: Configure Backups
+  ansible.builtin.include_tasks: backups.yml
+
+- name: Configure OTEL Metric Server
+  ansible.builtin.include_tasks: metrics.yml

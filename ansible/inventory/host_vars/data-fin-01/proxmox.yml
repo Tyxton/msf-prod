@@ -1,0 +1,22 @@
+vmid: 390
+password: "{{ vault_data_fin_01_pass }}"
+memory: 2048
+swap: 512
+cores: 2
+disk_volume:
+  storage: prod-disks-01
+  size: 10G
+  volume: 390/vm-390-disk-0
+  format: raw
+mount_volumes:
+  - id: mp0
+    host_path: /mnt/pve/data-fin-01
+    mount_mount: /mnt/firefly_data
+netif:
+  net0: "name=eth0,mac={{ vault_data_fin_01_mac0 }},bridge=vmbr0,tag=30,gw={{ hostvars[item.hostname]['gateway_ip'] }},ip={{ hostvars[item.hostname]['ansible_host'] }}/24"
+onboot: true
+ostype: debian
+features:
+  - nesting=1
+  - keyctl=1
+  - mount=nfs

@@ -6,6 +6,7 @@ features_map:
   docker_dir:
     DOCKER_DIR: '/opt/docker-data'
 
+tz: "America/Chicago"
 docker_dir: "/opt/docker-data"
 
 metrics_agg_ip: "10.20.0.50"

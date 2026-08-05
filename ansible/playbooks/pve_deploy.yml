@@ -1,0 +1,7 @@
+- name: Configure and Deploy Raiden
+  hosts: raiden
+  roles:
+    - pve_host
+  tags:
+    - pve
+    - infra

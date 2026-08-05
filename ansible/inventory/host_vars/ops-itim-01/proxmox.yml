@@ -1,0 +1,25 @@
+vmid: 210
+hostname: ops-itim-01
+password: "{{ vault_ops_itim_01_pass }}"
+memory: 1024
+swap: 512
+cores: 1
+disk_volumes:
+  storage: Dual1T_ZFS
+  size: 8G
+  volume: subvol-310-disk-0
+mount_volumes:
+  - id: mp0
+    host_path: /var/log
+    mountpoint: /mnt/host/log
+    options: "ro=1,backup=0"
+  - id: mp1
+    host_path: /var/log/journal
+    mountpoint: /mnt/host/log/journal
+    options: "ro=1,backup=0"
+netif:
+  net0: "name=eth0,mac={{ vault_ops_itim_01_mac0 }},bridge=vmbr0,tag=1,gw={{ hostvars[item.hostname]['gateway_ip'] }},ip={{ hostvars[item.hostname]['ansible_host'] }}/24"
+onboot: true
+ostype: debian
+features:
+  - nesting=1

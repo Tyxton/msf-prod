@@ -1,0 +1,50 @@
+- name: Create MSF Admin Group
+  community.proxmox.proxmox_group:
+    name: msf-admin
+    comment: MSF Administrators
+    state: present
+
+- name: Create Ansible User
+  community.proxmox.proxmox_user:
+    name: ansible_pve@pve
+    email: "{{ vault_internal_email }}"
+    enable: true
+    firstname: Ansible
+    lastname: Manager
+    groups: 
+      - msf-admin
+    password: "{{ vault_ansible_pve_pass }}"
+    tokens:
+      comment: Ansible Administrative Token
+      tokenid: ansible_manager
+    state: present
+
+- name: Create Admin User
+  community.proxmox.proxmox_user:
+    name: msf-tyx@pve
+    email: "{{ vault_admin_email }}"
+    enable: true
+    firstname: MSF
+    lastname: Tyxton
+    groups:
+      - msf-admin
+    password: "{{ vault_msf_tyx_pass }}"
+    state: present
+
+- name: Configure Ansible ACL
+  community.proxmox.proxmox_access_acl:
+    state: present
+    path: /
+    type: user
+    ugid: "ansible_pve@pve"
+    roleid: Administrator
+    propagate: 1
+
+- name: Configure MSF Tyx ACL
+  community.proxmox.proxmox_access_acl:
+    state: present
+    path: /
+    type: user
+    ugid: "msf-tyx@pve"
+    roleid: Administrator
+    propagate: 1

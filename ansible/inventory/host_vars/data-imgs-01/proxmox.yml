@@ -1,0 +1,19 @@
+vmid: 380
+password: "{{ vault_data_imgs_01_pass }}"
+memory: 8192
+swap: 2048
+cores: 4
+disk_volume:
+  storage: Dual1T_ZFS
+  size: 20G
+  volume: subvol-380-disk-0
+mount_volumes:
+  - id: mp0
+    host_path: /mnt/pve/data-imgs-01
+    mountpoint: /mnt/immich_data
+netif:
+  net0: "name=eth0,mac={{ vault_data_imgs_01_mac0 }},bridge=vmbr0,tag=30,gw={{ hostvars[item.hostname]['gateway_ip'] }},ip={{ hostvars[item.hostname]['ansible_host'] }}/24"
+onboot: true
+ostype: debian
+features:
+  - nesting=1

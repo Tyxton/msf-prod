@@ -1,0 +1,65 @@
+- name: Create or Update VMs
+  community.proxmox.proxmox_kvm:
+    state: "{{ 'started' if (item.onboot | default(false)) else 'present' }}"
+    
+    # Sorted By Location in Order of Proxmox UI
+    vmid: "{{ item.vmid }}"
+
+    # --- HARDWARE ---
+    memory: "{{ item.memory }}"
+    balloon: "{{ item.balloon | default(omit) }}"
+    sockets: "{{ item.sockets | default(1) }}"
+    cores: "{{ item.cores }}"
+    cpu: "{{ item.cpu | default(omit) }}"
+    cpuunits: "{{ item.cpuunits | default(omit) }}"
+    bios: "{{ item.bios | default('seabios') }}"
+    machine: "{{ item.machine | default('q35') }}"
+    scsihw: "{{ item.scsihw | default(omit) }}"
+    scsi: "{{ item.scsi | default(omit) }}"
+    net: "{{ item.net | default(omit) }}"
+    efidisk0: "{{ item.efidisk0 | default(omit) }}"
+    hostpci: "{{ item.hostpci | default(omit) }}"
+
+    # --- OPTIONS ---
+    name: "{{ item.name }}"
+    onboot: "{{ item.onboot | default(false) }}"
+    startup: "{{ item.startup | default(omit) }}"
+    tablet: "{{ item.tablet | default(false) }}"
+    acpi: "{{ item.acpi | default(true) }}"
+    kvm: "{{ item.kvm | default(true) }}"
+    smbios: "{{ item.smbios | default(omit) }}"
+    agent: "{{ item.agent | default(true) }}"
+    protection: "{{ item.protection | default(false) }}"
+
+  loop: "{{ vm_nodes }}"
+  loop_control:
+    label: "{{ item.name }} (VMID {{ item.vmid }})"
+
+- name: Create or Update LXCs
+  community.proxmox.proxmox:
+    state: "{{ 'started' if (item.onboot | default(false)) else 'present' }}"
+
+    # Sorted By Location in Order of Proxmox UI
+    vmid: "{{ item.vmid }}"
+    hostname: "{{ item.hostname }}"
+    password: "{{ item.password }}"
+    
+    # --- RESOURCES ---
+    memory: "{{ item.memory }}"
+    swap: "{{ item.swap | default(0) }}"
+    cores: "{{ item.cores }}"
+    disk_volume: "{{ item.disk_volume | default(omit) }}"
+    mount_volumes: "{{ item.mount_volumes | default(omit) }}"
+    
+    # --- NETWORK ---
+    netif: "{{ item.netif | default(omit) }}"
+    
+    # --- OPTIONS ---
+    onboot: "{{ item.onboot | default(false) }}"
+    startup: "{{ item.startup | default(omit) }}"
+    ostype: "{{ item.ostype | default('auto') }}"
+    unprivileged: "{{ item.unprivileged | default(true) }}"
+    features: "{{ item.features | default(omit) }}"
+  loop: "{{ lxc_nodes }}"
+  loop_control:
+    label: "{{ item.hostname }} (VMID {{ item.vmid }})"

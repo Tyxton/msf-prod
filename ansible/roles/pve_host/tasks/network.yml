@@ -1,0 +1,29 @@
+- name: Ensure DNS Configured
+  community.proxmox.proxmox_node:
+    dns:
+      - "{{ primary_dns }}"
+      - "{{ secondary_dns }}"
+      - "{{ tertiary_dns }}"
+    search: "{{ dns_domain }}"
+    node: "{{ inventory_hostname }}"
+
+- name: Ensure network bridge exists
+  community.proxmox.proxmox_node_network:
+    interface: "vmbr0"
+    type: "bridge"
+    address: "{{ hostvars[item.hostname]['api_host'] }}/24"
+    gateway: "{{ hostvars[item.hostname]['gateway_ip'] }}"
+    bridge_ports: "enp0s25"
+    autostart: true
+    vlan_aware: true
+    present: true
+    node: "{{ inventory_hostname }}"
+
+- name: Ensure storage lane exists
+  community.proxmox.proxmox_node_network:
+    interface: "vmbr0.50"
+    type: "vlan"
+    address: "{{ hostvars[item.hostname]['storage_ip'] }}/24"
+    autostart: true
+    present: true
+    node: "{{ inventory_hostname }}"

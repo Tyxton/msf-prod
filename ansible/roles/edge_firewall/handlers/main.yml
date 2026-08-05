@@ -2,6 +2,8 @@
   ansible.builtin.service:
     name: nftables
     state: reloaded
+  notify:
+    - Restart Docker
 
 - name: Restart Docker
   ansible.builtin.service:
