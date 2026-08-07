@@ -1,29 +1,32 @@
 - name: Ensure DNS Configured
   community.proxmox.proxmox_node:
     dns:
-      - "{{ primary_dns }}"
-      - "{{ secondary_dns }}"
-      - "{{ tertiary_dns }}"
-    search: "{{ dns_domain }}"
+      dns1: "{{ primary_dns }}"
+      dns2: "{{ secondary_dns }}"
+      dns3: "{{ tertiary_dns }}"
+      search: "{{ dns_domain }}"
     node: "{{ inventory_hostname }}"
+  delegate_to: localhost
 
 - name: Ensure network bridge exists
   community.proxmox.proxmox_node_network:
-    interface: "vmbr0"
-    type: "bridge"
-    address: "{{ hostvars[item.hostname]['api_host'] }}/24"
-    gateway: "{{ hostvars[item.hostname]['gateway_ip'] }}"
+    iface: "vmbr0"
+    iface_type: "bridge"
+    cidr: "{{ hostvars[inventory_hostname]['ansible_host'] }}/24"
+    gateway: "{{ hostvars[inventory_hostname]['gateway_ip'] }}"
     bridge_ports: "enp0s25"
     autostart: true
-    vlan_aware: true
-    present: true
+    bridge_vlan_aware: true
+    state: present
     node: "{{ inventory_hostname }}"
+  delegate_to: localhost
 
 - name: Ensure storage lane exists
   community.proxmox.proxmox_node_network:
-    interface: "vmbr0.50"
-    type: "vlan"
-    address: "{{ hostvars[item.hostname]['storage_ip'] }}/24"
+    iface: "vmbr0.50"
+    iface_type: "vlan"
+    cidr: "{{ hostvars[inventory_hostname]['storage_ip'] }}/24"
     autostart: true
-    present: true
+    state: present
     node: "{{ inventory_hostname }}"
+  delegate_to: localhost

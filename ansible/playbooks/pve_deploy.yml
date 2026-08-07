@@ -1,5 +1,13 @@
 - name: Configure and Deploy Raiden
   hosts: raiden
+  connection: local
+  module_defaults:
+    group/community.proxmox.proxmox:
+      api_host: 10.20.0.11
+      api_user: ansible_pve@pve
+      api_token_id: "{{ vault_proxmox_token_id }}"
+      api_token_secret: "{{ vault_proxmox_token_secret }}"
+      validate_certs: false
   roles:
     - pve_host
   tags:

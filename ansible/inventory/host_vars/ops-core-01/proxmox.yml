@@ -1,12 +1,11 @@
 vmid: 220
-hostname: ops-core-01
 password: "{{ vault_ops_core_01_pass }}"
 memory: 4096
 swap: 1024
 cores: 2
 disk_volume:
   storage: Dual1T_ZFS
-  size: 20G
+  size: 20
   volume: subvol-220-disk-0
 mount_volumes:
   - id: mp0
@@ -22,7 +21,7 @@ mount_volumes:
     host_path: /mnt/pve/data-cicd-01
     mountpoint: /mnt/gitea_data
 netif:
-  net0: "name=eth0,mac={{ vault_ops_core_01_mac0 }},bridge=vmbr0,tag=1,gw={{ hostvars[item.hostname]['gateway_ip'] }},ip={{ hostvars[item.hostname]['ansible_host'] }}/24"
+  net0: "name=eth0,mac={{ vault_ops_core_01_mac0 }},bridge=vmbr0,tag=1,gw={{ gateway_ip }},ip={{ ansible_host }}/24"
 onboot: true
 startup: order=1
 ostype: debian

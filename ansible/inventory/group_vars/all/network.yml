@@ -12,4 +12,4 @@ gw_ip: 10.20.0.1
 primary_dns: 10.20.0.50
 secondary_dns: 10.40.0.50
 tertiary_dns: 10.20.0.1
-dns_domain: msf.local
+dns_domain: local.nottyxton.net

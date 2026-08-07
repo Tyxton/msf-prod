@@ -5,11 +5,10 @@ swap: 512
 cores: 2
 disk_volume:
   storage: prod-disks-01
-  size: 10G
+  size: 10
   volume: 370/vm-370-disk-0
-  format: raw
 netif:
-  net0: "name=eth0,mac={{ vault_data_sync_01_mac0 }},bridge=vmbr0,tag=30,gw={{ hostvars[item.hostname]['gateway_ip'] }},ip={{ hostvars[item.hostname]['ansible_host'] }}/24"
+  net0: "name=eth0,mac={{ vault_data_sync_01_mac0 }},bridge=vmbr0,tag=30,gw={{ gateway_ip }},ip={{ ansible_host }}/24"
 onboot: true
 ostype: debian
 features:

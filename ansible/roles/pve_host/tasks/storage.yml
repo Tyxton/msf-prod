@@ -1,37 +1,39 @@
 - name: Create Local ZFS Pool
   community.proxmox.proxmox_storage:
     name: Dual1T_ZFS
+    zfspool_options: 
+      pool: Dual1T_ZFS
+      sparse: false
     type: "zfspool"
-    content: "images,rootdir"
+    content: ["images", "rootdir"]
     state: present
-    enable: true
 
 - name: Mount prod-backups-01
   community.proxmox.proxmox_storage:
-    storage: "prod-backups-01"
+    name: prod-backups-01
     type: "nfs"
-    server: "{{ motherbase_storage_ip }}"
-    export: "/mnt/kazuhira/proxmox_backups"
-    content: "backup"
+    nfs_options:
+      server: "{{ motherbase_storage_ip }}"
+      export: "/mnt/kazuhira/proxmox_backups"
+    content: ["backup"]
     state: "present"
-    enable: "true"
 
 - name: Mount prod-disks-01
   community.proxmox.proxmox_storage:
-    storage: "prod-disks-01"
+    name: prod-disks-01
     type: "nfs"
-    server: "{{ motherbase_storage_ip }}"
-    export: "/mnt/kazuhira/proxmox_disks"
-    content: "images,rootdir"
+    nfs_options:
+      server: "{{ motherbase_storage_ip }}"
+      export: "/mnt/kazuhira/proxmox_disks"
+    content: ["images", "rootdir"]
     state: "present"
-    enable: "true"
 
 - name: Mount prod-imgs-01
   community.proxmox.proxmox_storage:
-    storage: "prod-imgs-01"
+    name: prod-imgs-01
     type: "nfs"
-    server: "{{ motherbase_storage_ip }}"
-    export: "/mnt/kazuhira/proxmox_isos"
-    content: "vztmpl,iso"
+    nfs_options:
+      server: "{{ motherbase_storage_ip }}"
+      export: "/mnt/kazuhira/proxmox_isos"
+    content: ["vztmpl", "iso"]
     state: "present"
-    enable: "true"

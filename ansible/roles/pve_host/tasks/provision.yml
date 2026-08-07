@@ -21,7 +21,7 @@
     hostpci: "{{ item.hostpci | default(omit) }}"
 
     # --- OPTIONS ---
-    name: "{{ item.name }}"
+    name: "{{ item.inventory_hostname }}"
     onboot: "{{ item.onboot | default(false) }}"
     startup: "{{ item.startup | default(omit) }}"
     tablet: "{{ item.tablet | default(false) }}"
@@ -31,9 +31,9 @@
     agent: "{{ item.agent | default(true) }}"
     protection: "{{ item.protection | default(false) }}"
 
-  loop: "{{ vm_nodes }}"
+  loop: "{{ groups['vm_nodes'] | map('extract', hostvars) | list}}"
   loop_control:
-    label: "{{ item.name }} (VMID {{ item.vmid }})"
+    label: "{{ item.inventory_hostname }} (VMID {{ item.vmid | default('') }})"
 
 - name: Create or Update LXCs
   community.proxmox.proxmox:
@@ -41,7 +41,7 @@
 
     # Sorted By Location in Order of Proxmox UI
     vmid: "{{ item.vmid }}"
-    hostname: "{{ item.hostname }}"
+    hostname: "{{ item.inventory_hostname }}"
     password: "{{ item.password }}"
     
     # --- RESOURCES ---
@@ -60,6 +60,6 @@
     ostype: "{{ item.ostype | default('auto') }}"
     unprivileged: "{{ item.unprivileged | default(true) }}"
     features: "{{ item.features | default(omit) }}"
-  loop: "{{ lxc_nodes }}"
+  loop: "{{ groups['lxc_nodes'] | map('extract', hostvars) | list}}"
   loop_control:
-    label: "{{ item.hostname }} (VMID {{ item.vmid }})"
+    label: "{{ item.inventory_hostname }} (VMID {{ item.vmid | default('') }})"

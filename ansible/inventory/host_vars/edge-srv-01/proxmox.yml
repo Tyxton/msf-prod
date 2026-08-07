@@ -1,5 +1,4 @@
 vmid: 450
-name: edge-srv-01
 memory: 16384
 cores: 4
 cpu: host,flags=+pcid
@@ -12,12 +11,11 @@ efidisk0:
   storage: Dual1T_ZFS:vm-450-disk-0
   efitype: 4m
   pre_enrolled_keys: true
-  ms_cert: 2023k
-  size: 1M
 net:
   net0: "virtio={{ vault_edge_srv_01_mac0 }},bridge=vmbr0,queues=2,tag=40"
   net1: "virtio={{ vault_edge_srv_01_mac1 }},bridge=vmbr0,queues=2,tag=50"
-hostpci: "0000:03:00,pcie=1,x-vga=1"
+hostpci:
+  hostpci0: "0000:03:00,pcie=1,x-vga=1"
 onboot: true
 startup: order=3
 smbios: "uuid={{ vault_edge_srv_01_uuid }}"

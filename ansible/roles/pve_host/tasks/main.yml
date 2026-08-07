@@ -12,9 +12,3 @@
 
 - name: Configure LXCs/VMs
   ansible.builtin.include_tasks: provision.yml
-
-- name: Configure Backups
-  ansible.builtin.include_tasks: backups.yml
-
-- name: Configure OTEL Metric Server
-  ansible.builtin.include_tasks: metrics.yml

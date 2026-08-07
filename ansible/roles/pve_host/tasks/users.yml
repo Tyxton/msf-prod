@@ -3,6 +3,7 @@
     name: msf-admin
     comment: MSF Administrators
     state: present
+  delegate_to: localhost
 
 - name: Create Ansible User
   community.proxmox.proxmox_user:
@@ -13,11 +14,12 @@
     lastname: Manager
     groups: 
       - msf-admin
-    password: "{{ vault_ansible_pve_pass }}"
+#    password: "{{ vault_ansible_pve_pass }}"
     tokens:
-      comment: Ansible Administrative Token
-      tokenid: ansible_manager
+      - tokenid: "ansible_manager"
+        comment: "Ansible Administrative Token"
     state: present
+  delegate_to: localhost
 
 - name: Create Admin User
   community.proxmox.proxmox_user:
@@ -28,8 +30,9 @@
     lastname: Tyxton
     groups:
       - msf-admin
-    password: "{{ vault_msf_tyx_pass }}"
+#    password: "{{ vault_msf_tyx_pass }}"
     state: present
+  delegate_to: localhost
 
 - name: Configure Ansible ACL
   community.proxmox.proxmox_access_acl:
@@ -39,6 +42,7 @@
     ugid: "ansible_pve@pve"
     roleid: Administrator
     propagate: 1
+  delegate_to: localhost
 
 - name: Configure MSF Tyx ACL
   community.proxmox.proxmox_access_acl:
@@ -48,3 +52,4 @@
     ugid: "msf-tyx@pve"
     roleid: Administrator
     propagate: 1
+  delegate_to: localhost

@@ -9,6 +9,5 @@ scsihw: virtio-scsi-single
 net:
   net0: "virtio={{ vault_media_proc_01_mac0 }},bridge=vmbr0,queues=4,tag=30"
   net1: "virtio={{ vault_media_proc_01_mac1 }},bridge=vmbr0,queues=4,tag=50"
-name: media-proc-01
 onboot: true
 smbios: "uuid={{ vault_media_proc_01_uuid }}"
