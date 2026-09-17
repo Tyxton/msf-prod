@@ -1,9 +1,0 @@
-- name: Ensure edge nodes are registered in CrowdSec LAPI
-  ansible.builtin.command: >
-    cscli machines add {{ item }} 
-    --password {{ hostvars[item].crowdsec_agent_password }} 
-    --force
-  register: machine_add
-  changed_when: "'created successfully' in machine_add.stdout or 'updated successfully' in machine_add.stdout"
-  become: true
-  loop: "{{ groups['crowdsec_agents'] | default([]) }}"
