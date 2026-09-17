@@ -18,11 +18,11 @@ loki.write "default" {
 }
 {% else %}
 prometheus.remote_write "default" {
-    endpoint { url = "http://{{ metrics_agg_ip }}:9090/api/v1/write" }
+    endpoint { url = "http://{{ hostvars['ops-core-01'].ansible_host }}:9090/api/v1/write" }
 }
 
 loki.write "default" {
-    endpoint { url = "http://{{ metrics_agg_ip }}:3100/loki/api/v1/push" }
+    endpoint { url = "http://{{ hostvars['ops-core-01'].ansible_host }}:3100/loki/api/v1/push" }
 }
 {% endif %}
 

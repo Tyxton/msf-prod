@@ -18,8 +18,8 @@ table inet filter {
         udp dport 53 accept
 
         # NFS / RPC
-        ip saddr {{ motherbase_ip }} tcp dport { 111, 2049 } accept
-        ip saddr {{ motherbase_ip }} udp dport { 111, 2049 } accept
+        ip saddr "{{ hostvars['motherbase'].ansible_host }}" tcp dport { 111, 2049 } accept
+        ip saddr "{{ hostvars['motherbase'].ansible_host }}" udp dport { 111, 2049 } accept
 
         # ICMP/Ping
         ip protocol icmp accept
@@ -30,28 +30,29 @@ table inet filter {
 
         # SSH Access
         {% for ip in firewall_ssh_ips %}
-        ip saddr {{ ip }} tcp dport 2222 accept
+        ip saddr "{{ ip }}" tcp dport 2222 accept
         {% endfor %}
-        ip saddr {{ ops_core_01_ip }} tcp dport 2222 accept
+        ip saddr "{{ hostvars['ops-core-01'].ansible_host }}" tcp dport 2222 accept
 
         tcp dport 2424 accept
 
-        ip saddr {{ vpn_clients_subnet }} tcp dport 2222 accept
+        ip saddr "{{ vpn_clients_subnet }}" tcp dport 2222 accept
 
         # Untrusted Access
-        ip saddr {{ untrusted_subnet }} accept
+        ip saddr "{{ untrusted_subnet }}" accept
         
         # Hytale
         udp dport { 5520, 5533 } accept
        
         # Crowdsec Server
-        ip saddr {{ ops_core_01_ip }} tcp dport 8085 accept
+        ip saddr "{{ hostvars['ops-core-01'].ansible_host }}" tcp dport 8085 accept
+        ip saddr "{{ hostvars['ops-core-01'].ansible_host }}" tcp dport 7422 accept
 
         # VPN Client Rules (MGMT)
-        ip saddr {{ vpn_clients_subnet }} tcp dport { 3000, 5200, 5300, 80, 443 } accept
+        ip saddr "{{ vpn_clients_subnet }}" tcp dport { 3000, 5200, 5300, 80, 443 } accept
 
         # Dockge Agent
-        ip saddr {{ ops_core_01_ip }} tcp dport 5001 accept
+        ip saddr "{{ hostvars['ops-core-01'].ansible_host }}" tcp dport 5001 accept
     }
 
     chain forward {

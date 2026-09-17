@@ -20,7 +20,7 @@
 {% if 'edge_proxy' in group_names | default([]) %}
     forward_auth auth-authelia:9091 {
 {% elif 'core_proxy' in group_names | default([]) %}
-    forward_auth {{ edge_srv_01_ip }}:9091 {
+    forward_auth {{ hostvars['edge-srv-01'].ansible_host }}:9091 {
 {% endif %}
         uri /api/verify?rd=https://auth.nottyxton.net
         copy_headers Remote-User Remote-Groups Remote-Name Remote-Email

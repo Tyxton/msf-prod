@@ -6,15 +6,15 @@ core_proxies:
   # INFRA
   - name: raiden
     domain: raiden.local.nottyxton.net
-    target: "{{ hostvars['raiden']['ansible_host'] }}:8006"
+    target: "{{ hostvars['raiden'].ansible_host }}:8006"
     auth_policy: two_factor
   - name: motherbase
     domain: motherbase.local.nottyxton.net
-    target: "{{ hostvars['motherbase']['ansible_host'] }}:443"
+    target: "{{ hostvars['motherbase'].ansible_host }}:443"
     auth_policy: two_factor
   - name: unifi
     domain: unifi.local.nottyxton.net
-    target: "{{ hostvars['ufi-ucg-m']['ansible_host'] }}:443"
+    target: "{{ hostvars['ufi-ucg-m'].ansible_host }}:443"
     auth_policy: two_factor
   - name: dockge
     domain: dockge.local.nottyxton.net
@@ -24,11 +24,11 @@ core_proxies:
   # NETWORKING
   - name: adguard-core
     domain: agh-core.local.nottyxton.net
-    target: "{{ hostvars['ops-core-01']['ansible_host'] }}:8080"
+    target: "{{ hostvars['ops-core-01'].ansible_host }}:8080"
     auth_policy: two_factor
   - name: crowdsec-core
     domain: cs-core.local.nottyxton.net
-    target: "{{ hostvars['ops-core-01']['ansible_host'] }}:8085"
+    target: "{{ hostvars['ops-core-01'].ansible_host }}:8085"
     auth_policy: two_factor
 
   # ITIM
@@ -65,43 +65,43 @@ core_proxies:
   # MEDIA
   - name: bazarr
     domain: bazarr.local.nottyxton.net
-    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:6767"
+    target: "{{ hostvars['media-proc-01'].ansible_host }}:6767"
     auth_policy: one_factor
   - name: sonarr
     domain: sonarr.local.nottyxton.net
-    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:8989"
+    target: "{{ hostvars['media-proc-01'].ansible_host }}:8989"
     auth_policy: one_factor
   - name: radarr
     domain: radarr.local.nottyxton.net
-    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:7878"
+    target: "{{ hostvars['media-proc-01'].ansible_host }}:7878"
     auth_policy: one_factor
   - name: prowlarr
     domain: prowlarr.local.nottyxton.net
-    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:9696"
+    target: "{{ hostvars['media-proc-01'].ansible_host }}:9696"
     auth_policy: two_factor
   - name: sabnzbd
     domain: sab.local.nottyxton.net
-    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:8080"
+    target: "{{ hostvars['media-proc-01'].ansible_host }}:8080"
     auth_policy: one_factor
   - name: rtdclient
     domain: rtdc.local.nottyxton.net
-    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:6500"
+    target: "{{ hostvars['media-proc-01'].ansible_host }}:6500"
     auth_policy: one_factor
 
   - name: immich
     domain: immich.local.nottyxton.net
-    target: "{{ hostvars['data-imgs-01']['ansible_host'] }}:2283"
+    target: "{{ hostvars['data-imgs-01'].ansible_host }}:2283"
     auth_policy: bypass
 
   - name: syncthing
     domain: sync.local.nottyxton.net
-    target: "{{ hostvars['data-sync-01']['ansible_host'] }}:8384"
+    target: "{{ hostvars['data-sync-01'].ansible_host }}:8384"
     auth_policy: two_factor
 
   # MISC
   - name: actual-budget
     domain: actual.local.nottyxton.net
-    target: "{{ hostvars['data-fin-01']['ansible_host'] }}:5006"
+    target: "{{ hostvars['data-fin-01'].ansible_host }}:5006"
     auth_policy: one_factor
   - name: vaultwarden
     domain: vault.local.nottyxton.net
@@ -113,7 +113,7 @@ core_proxies:
     auth_policy: bypass
   - name: homeassistant
     domain: hass.local.nottyxton.net
-    target: "{{ hostvars['ops-core-01']['ansible_host'] }}:8123"
+    target: "{{ hostvars['ops-core-01'].ansible_host }}:8123"
     auth_policy: bypass
 
 #---++====++---#
@@ -169,5 +169,5 @@ edge_proxies:
   # Edge Internal Domains
   - name: agh-edge
     domain: agh-edge.nottyxton.net
-    target: "{{ hostvars['edge-srv-01']['ansible_host'] }}:8080"
+    target: "{{ hostvars['edge-srv-01'].ansible_host }}:8080"
     auth_policy: two_factor

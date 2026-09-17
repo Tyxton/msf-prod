@@ -7,5 +7,5 @@ adguard_cache_ttl_min: 0
 adguard_local_ptr_upstreams: []
 adguard_rewrites:
   - domain: '*.nottyxton.net'
-    answer: "{{ hostvars['edge-srv-01']['ansible_host'] }}"
+    answer: "{{ hostvars['edge-srv-01'].ansible_host }}"
     enabled: true

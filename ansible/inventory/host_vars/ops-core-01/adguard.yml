@@ -9,11 +9,11 @@ adguard_allowed_clients:
 adguard_cache_size: 67108864
 adguard_cache_ttl_min: 3600
 adguard_local_ptr_upstreams:
-  - "{{ hostvars['ufi-ucg-m']['ansible_host'] }}:53"
+  - "{{ hostvars['ufi-ucg-m'].ansible_host }}:53"
 adguard_rewrites:
   - domain: '*.local.nottyxton.net'
-    answer: "{{ hostvars['ops-core-01']['ansible_host'] }}"
+    answer: "{{ hostvars['ops-core-01'].ansible_host }}"
     enabled: true
   - domain: '*.nottyxton.net'
-    answer: "{{ hostvars['edge-srv-01']['ansible_host'] }}"
+    answer: "{{ hostvars['edge-srv-01'].ansible_host }}"
     enabled: true
