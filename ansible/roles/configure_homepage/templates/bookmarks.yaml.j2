@@ -1,0 +1,15 @@
+# Managed by Ansible
+
+{% for category_dict in homepage_bookmarks %}
+{% for category, items in category_dict.items() %}
+- {{ category }}:
+{% for bm in items %}
+    - {{ bm['name'] }}:
+        - icon: {{ bm['icon'] }}
+          href: {{ bm['href'] }}
+{% if bm['desc'] is defined %}
+          description: {{ bm['desc'] }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}

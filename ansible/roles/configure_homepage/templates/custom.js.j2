@@ -1,0 +1,44 @@
+// MANAGED BY ANSIBLE
+
+(function() {
+    function applyBebopQuote(element) {
+        const quotes = [
+            "Good morning me, did you wake up feeling good?",
+            "Whatever happens, happens.",
+            "You're gonna carry that weight.",
+            "See you space cowboy...",
+            "I’m just watching a dream that I’ll never wake up from."
+        ];
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        element.textContent = randomQuote;
+    }
+
+    const greetingObserver = new MutationObserver(() => {
+        const greetingSpan = document.querySelector('.information-widget-greeting span');
+        if (greetingSpan && !greetingSpan.dataset.modified) {
+            applyBebopQuote(greetingSpan);
+            greetingSpan.dataset.modified = "true";
+        }
+    });
+
+    greetingObserver.observe(document.body, { childList: true, subtree: true });
+
+    function injectCRTLayers() {
+        if (!document.getElementById('crt-effects-container')) {
+            const crtContainer = document.createElement('div');
+            crtContainer.id = 'crt-effects-container';
+            crtContainer.innerHTML = `
+                <div class="scanlines"></div>
+                <div class="screen-flicker"></div>
+                <div class="bezel"></div>
+            `;
+            document.body.appendChild(crtContainer);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectCRTLayers);
+    } else {
+        injectCRTLayers();
+    }
+})();

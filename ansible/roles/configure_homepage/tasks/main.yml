@@ -1,0 +1,61 @@
+- name: Ensure homepage dir exists
+  ansible.builtin.file:
+    path: "/opt/docker-data/homepage/config"
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: '0755'
+
+- name: Deploy CSS
+  ansible.builtin.template:
+    src: custom.css.j2
+    dest: "/opt/docker-data/homepage/config/custom.css"
+    owner: 1000
+    group: 1000
+    mode: '0644'
+    
+- name: Deploy JS
+  ansible.builtin.template:
+    src: custom.js.j2
+    dest: "/opt/docker-data/homepage/config/custom.js"
+    owner: 1000
+    group: 1000
+    mode: '0644'
+
+- name: Deploy Bookmarks
+  ansible.builtin.template:
+    src: bookmarks.yaml.j2
+    dest: "/opt/docker-data/homepage/config/bookmarks.yaml"
+    owner: 1000
+    group: 1000
+    mode: '0644'
+
+- name: Deploy Services
+  ansible.builtin.template:
+    src: services.yaml.j2
+    dest: "/opt/docker-data/homepage/config/services.yaml"
+    owner: 1000
+    group: 1000
+    mode: '0644'
+
+- name: Deploy Widgets
+  ansible.builtin.template:
+    src: widgets.yaml.j2
+    dest: "/opt/docker-data/homepage/config/widgets.yaml"
+    owner: 1000
+    group: 1000
+    mode: '0644'
+
+- name: Deploy Settings
+  ansible.builtin.template:
+    src: settings.yaml.j2
+    dest: "/opt/docker-data/homepage/config/settings.yaml"
+    owner: 1000
+    group: 1000
+    mode: '0644'
+
+- name: Restart Homepage
+  ansible.builtin.docker_container:
+    name: home-homepage
+    state: started
+    restart: true

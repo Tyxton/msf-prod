@@ -1,0 +1,32 @@
+# Managed by Ansible
+
+- logo:
+    icon: https://www.nottyxton.net/favicon-32x32.png
+
+- search:
+    provider: google
+    focus: true
+    showSearchSuggestions: true
+    target: _blank
+
+- datetime:
+    locale: en
+    text_size: 2x1
+    format:
+      timeStyle: short
+      dateStyle: long
+      hour12: true
+
+- openmeteo:
+    label: Houston, TX
+    latitude: {{ vault_openmeteo_latitude }}
+    longitude: {{ vault_openmeteo_longitude }}
+    timezone: America/Chicago
+    units: imperial
+    cache: 5
+    format:
+      maximumFractionDigits: 2
+
+- greeting:
+    text_size: x1
+    text: Good morning me, did you wake up feeling good?

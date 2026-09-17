@@ -1,0 +1,14 @@
+# Managed by Ansible
+{% for category_dict in homepage_services %}
+{% for category, items in category_dict.items() %}
+- {{ category }}:
+{% for bm in items %}
+  - {{ bm['name'] }}:
+      icon: {{ bm['icon'] }}
+      href: https://{{ bm['href'] }}
+{% if bm.desc is defined %}
+      description: {{ bm['desc'] }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}

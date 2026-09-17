@@ -1,0 +1,203 @@
+homepage_bookmarks:
+  - Personal:
+      - name: Gmail
+        icon: sh-gmail
+        href: https://mail.google.com
+        desc: Google Mail
+
+      - name: "{{ vault_bm_obf01 }}"
+        icon: "{{ vault_bm_obf01_icon }}"
+        href: "{{ vault_bm_obf01_link }}"
+        desc: "{{ vault_bm_obf01_desc }}"
+
+      - name: "{{ vault_bm_obf02 }}"
+        icon: "{{ vault_bm_obf02_icon }}"
+        href: "{{ vault_bm_obf02_link }}"
+        desc: "{{ vault_bm_obf02_desc }}"
+
+      - name: "{{ vault_bm_obf03 }}"
+        icon: "{{ vault_bm_obf03_icon }}"
+        href: "{{ vault_bm_obf03_link }}"
+        desc: "{{ vault_bm_obf03_desc }}"
+
+      - name: LinkedIn
+        icon: sh-linkedin
+        href: https://www.linkedin.com
+
+  - Entertainment:
+      - name: YouTube
+        icon: sh-youtube
+        href: https://youtube.com
+        desc: YouTube
+
+      - name: Reddit
+        icon: sh-reddit
+        href: https://reddit.com
+        desc: I hate it here
+
+      - name: 4chan
+        icon: https://4chan.org/favicon.ico
+        href: https://4chan.org
+        desc: I hate it here more
+
+  - Gaming:
+      - name: Dwarf Fortress Wiki
+        icon: https://dwarffortresswiki.org/favicon.ico
+        href: https://dwarffortresswiki.org
+        desc: Strike the Earth!
+      
+      - name: Factorio Cheat Sheet
+        icon: https://factoriocheatsheet.com/favicon-16x16.png
+        href: https://factoriocheatsheet.com
+        desc: The Factory must grow.
+
+      - name: Path of Exile
+        icon: https://web.poecdn.com/protected/image/favicon/favicon.ico?key=Hd0k46o9F-3yqJ3wD8x8gg
+        href: https://pathofexile.com
+        desc: PoE2 1.0 couln't come sooner
+
+      - name: Final Fantasy XIV
+        icon: https://lds-img.finalfantasyxiv.com/pc/global/images/favicon.ico?1720069015=
+        href: https://na.finalfantasyxiv.com/lodestone/
+        desc: The Lodestone
+
+      - name: AdventureQuest Worlds
+        icon: https://www.aq.com/favicon.ico
+        href: https://www.aq.com
+        desc: 10+ Years of Lore
+
+  - DevOps:
+      - name: nottyxton.net
+        icon: https://www.nottyxton.net/favicon-32x32.png
+        href: https://www.nottyxton.net
+        
+      - name: GitHub
+        icon: sh-github-light
+        href: https://github.com
+
+      - name: Arch Linux
+        icon: sh-arch-linux
+        href: https://archlinux.org
+        desc: I use arch, btw
+      
+      - name: Syncthing Client
+        icon: sh-syncthing
+        href: https://localhost:8384
+        desc: Local Syncthing
+
+homepage_services:
+  - Infrastructure:
+      - name: Raiden
+        icon: sh-proxmox
+        href: raiden.local.nottyxton.net
+        desc: Proxmox VE
+
+      - name: Motherbase
+        icon: sh-truenas-scale
+        href: motherbase.local.nottyxton.net
+        desc: TrueNAS Scale
+
+      - name: UniFi Control Center
+        icon: sh-ubiquiti-unifi
+        href: unifi.local.nottyxton.net
+        desc: UniFi Dashboard
+
+      - name: Dockge
+        icon: sh-dockge
+        href: dockge.local.nottyxton.net
+        desc: Container Overview
+
+  - Network:
+      - name: AdGuard Home Core
+        icon: sh-adguard-home
+        href: agh-core.local.nottyxton.net
+        desc: Core DNS
+
+      - name: AdGuard Home Edge
+        icon: sh-adguard-home
+        href: agh-edge.local.nottyxton.net
+        desc: Edge DNS
+
+      - name: Cloudflare
+        icon: sh-cloudflare
+        href: dash.cloudflare.com
+        desc: Public DNS
+
+  - Media:
+      - name: Jellyfin
+        icon: sh-jellyfin
+        href: watch.nottyxton.net
+        desc: Ethically Obtained Streaming
+
+      - name: Seerr
+        icon: sh-seerr
+        href: seerr.nottyxton.net
+        desc: Ethical Requester for Jellyfin
+
+      - name: Immich
+        icon: sh-immich
+        href: immich.local.nottyxton.net
+        desc: Image Cloud
+
+  - Arr Stack:
+      - name: Radarr
+        icon: sh-radarr
+        href: radarr.local.nottyxton.net
+        desc: Movie PVR
+
+      - name: Sonarr
+        icon: sh-sonarr
+        href: sonarr.local.nottyxton.net
+        desc: TV PVR
+
+      - name: Prowlarr
+        icon: sh-prowlarr
+        href: prowlarr.local.nottyxton.net
+        desc: Indexer
+
+      - name: Bazarr
+        icon: sh-bazarr
+        href: bazarr.local.nottyxton.net
+        desc: Subtitle Aquisition and Normalization
+
+      - name: Sabnzbd
+        icon: sh-sabnzbd
+        href: sab.local.nottyxton.net
+        desc: Newsnab Downloader
+
+      - name: RDT Client
+        icon: sh-real-debrid
+        href: rdtc.local.nottyxton.net
+        desc: Torznab Downloader (RealDebrid)
+
+  - Monitoring:
+      - name: Uptime Kuma
+        icon: sh-uptime-kuma
+        href: kuma.local.nottyxton.net
+        desc: Uptime Monitor
+
+      - name: Grafana
+        icon: sh-grafana
+        href: grafana.local.nottyxton.net
+        desc: ITIM Dashboard
+
+      - name: Prometheus
+        icon: sh-prometheus
+        href: prom.local.nottyxton.net
+        desc: Metrics Aggregation
+
+      - name: Loki
+        icon: sh-loki
+        href: loki.local.nottyxton.net
+        desc: Logs Aggregation
+
+  - 'Access & Security':
+      - name: Authelia
+        icon: sh-authelia
+        href: auth.nottyxton.net
+        desc: MSF Single Sign On
+
+      - name: VaultWarden
+        icon: sh-vaultwarden
+        href: vault.local.nottyxton.net
+        desc: Password Management
