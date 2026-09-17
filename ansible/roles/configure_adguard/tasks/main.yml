@@ -1,0 +1,40 @@
+- name: Read existing AdGuard config
+  ansible.builtin.slurp:
+    src: "/opt/docker-data/adguard/conf/AdGuardHome.yaml"
+  register: existing_agh_config
+  ignore_errors: true
+
+- name: Extract dynamic schema_version
+  ansible.builtin.set_fact:
+    adguard_schema_version: >-
+      {{
+        (existing_agh_config.content | b64decode | from_yaml).schema_version
+        if (existing_agh_config.content is defined and existing_agh_config.content | length > 0)
+        else 34
+      }}
+
+- name: Stop AdGuard container before updating config
+  community.docker.docker_container:
+    name: "{{ adguard_map.get(inventory_hostname, 'adguard') }}"
+    state: stopped
+  vars:
+    adguard_map:
+      ops-core-01: core-agh
+      edge-srv-01: edge-agh
+
+- name: Deploy AdGuard template
+  ansible.builtin.template:
+    src: AdGuardHome.yaml.j2
+    dest: "/opt/docker-data/adguard/conf/AdGuardHome.yaml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure AdGuard container is running
+  community.docker.docker_container:
+    name: "{{ adguard_map.get(inventory_hostname, 'adguard') }}"
+    state: started
+  vars:
+    adguard_map:
+      ops-core-01: core-agh
+      edge-srv-01: edge-agh

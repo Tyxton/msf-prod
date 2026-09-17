@@ -1,0 +1,19 @@
+adguard_http_port: 8080
+adguard_dns_ratelimit: 0
+adguard_allowed_clients:
+  - 10.10.0.0/24
+  - 10.20.0.0/24
+  - 10.30.0.0/24
+  - 10.40.0.0/24
+  - 10.80.0.0/24
+adguard_cache_size: 67108864
+adguard_cache_ttl_min: 3600
+adguard_local_ptr_upstreams:
+  - "{{ hostvars['ufi-ucg-m']['ansible_host'] }}:53"
+adguard_rewrites:
+  - domain: '*.local.nottyxton.net'
+    answer: "{{ hostvars['ops-core-01']['ansible_host'] }}"
+    enabled: true
+  - domain: '*.nottyxton.net'
+    answer: "{{ hostvars['edge-srv-01']['ansible_host'] }}"
+    enabled: true
