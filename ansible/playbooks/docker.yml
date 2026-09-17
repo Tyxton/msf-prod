@@ -1,0 +1,65 @@
+- name: Configure Alloy
+  hosts: docker_nodes
+  roles:
+    - configure_alloy
+  tags:
+    - itim
+    - alloy
+
+- name: Configure Monitoring Stack
+  hosts: docker_nodes
+  roles:
+    - configure_monitoring
+  tags:
+    - itim
+    - loki
+    - prometheus
+    - grafana
+    - unpoller
+    - graphite
+
+- name: Configure AdGuard
+  hosts: ops-core-01:edge-srv-01
+  roles:
+    - configure_adguard
+  tags:
+    - network
+    - adguard
+
+- name: Configure Authelia
+  hosts: edge-srv-01
+  roles:
+    - configure_authelia
+  tags:
+    - network
+    - authelia
+
+- name: Configure Caddy
+  hosts: core_proxy:edge_proxy
+  roles:
+    - configure_caddy
+  tags:
+    - network
+    - caddy
+
+- name: Configure Homepage
+  hosts: ops-core-01
+  roles:
+    - configure_homepage
+  tags:
+    - general
+    - homepage
+
+- name: Deploy Docker Engine
+  hosts: docker_nodes
+  roles:
+    - configure_docker
+  tags:
+    - docker_engine
+
+- name: Deploy Docker Stacks
+  hosts: docker_nodes
+  roles:
+    - docker_stacks
+  tags:
+    - docker_stacks
