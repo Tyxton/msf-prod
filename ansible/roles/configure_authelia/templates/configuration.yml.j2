@@ -1,0 +1,53 @@
+server:
+  address: 'tcp://0.0.0.0:9091'
+
+log:
+  level: 'info'
+
+jwt_secret: '{{ vault_authelia_jwt_secret }}'
+
+default_redirection_url: 'https://nottyxton.net'
+
+authentication_backend:
+  password_reset:
+    disable: true
+  file:
+    path: '/config/users_database.yml'
+    watch: true
+    password:
+      algorithm: 'argon2'
+
+session:
+  name: 'authelia_session'
+  domain: 'nottyxton.net'
+  same_site: 'lax'
+  expiration: '1h'
+  remember_me_duration: '1M'
+
+storage:
+  local:
+    path: '/config/db.sqlite3'
+
+access_control:
+  default_policy: 'deny'
+  rules:
+{% for proxy in core_proxies %}
+    - domain: "{{ proxy.domain }}"
+      policy: '{{ proxy.auth_policy }}'
+{% if proxy.auth_policy != 'bypass' %}
+      subject: 'group:msf-admin'
+{% endif %}
+{% endfor %}
+
+{% for proxy in edge_proxies %}
+    - domain: "{{ proxy.domain }}"
+      policy: '{{ proxy.auth_policy }}'
+{% if proxy.auth_policy != 'bypass' %}
+      subject: 'group:trusted-users'
+{% endif %}
+{% endfor %}
+
+notifier:
+  filesystem:
+    filename: '/config/notification.txt'
+

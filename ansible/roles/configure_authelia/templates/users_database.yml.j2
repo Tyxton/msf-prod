@@ -1,0 +1,15 @@
+users:
+  {{ vault_authelia_admin_username }}:
+    displayname: "MSF Administrator"
+    password: "{{ vault_authelia_admin_password }}"
+    email: "{{ vault_admin_email }}"
+    groups:
+      - msf-admin
+      - trusted-users
+
+  {{ vault_authelia_trusted_username }}:
+    displayname: "MSF Trusted Guest"
+    password: "{{ vault_authelia_trusted_password }}"
+    email: "{{ vault_noreply_email }}"
+    groups:
+      - trusted-users

@@ -1,0 +1,26 @@
+- name: Ensure Authelia dir exists
+  ansible.builtin.file:
+    path: "/opt/docker-data/authelia/config"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Render and deploy Authelia conf
+  ansible.builtin.template:
+    src: configuration.yml.j2
+    dest: "/opt/docker-data/authelia/config/configuration.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Render and deploy Authelia userdb
+  ansible.builtin.template:
+    src: users_database.yml.j2
+    dest: "/opt/docker-data/authelia/config/users_database.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
