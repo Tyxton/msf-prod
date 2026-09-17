@@ -1,0 +1,32 @@
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    container_name: feeds-freshrss
+    ports:
+      - "6696:80"
+    networks:
+      - proxy-edge
+    restart: unless-stopped
+
+  znc:
+    image: znc:latest
+    container_name: feeds-znc
+    ports:
+      - "6697:6697"
+    networks:
+      - proxy-edge
+    restart: unless-stopped
+
+  rss-bridge:
+    image: rssbridge/rss-bridge:latest
+    container_name: feeds-rssbridge
+    ports:
+      - "6698:80"
+    networks:
+      - proxy-edge
+    restart: unless-stopped
+ 
+networks:
+  proxy-edge:
+    external: true
+    name: proxy-edge

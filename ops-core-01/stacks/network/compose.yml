@@ -1,29 +1,32 @@
 services:
   adguardhome:
     image: adguard/adguardhome
-    container_name: network-adguardhome
+    container_name: core-agh
     restart: unless-stopped
     network_mode: host
     volumes:
       - ${DOCKER_DIR}/adguard/work:/opt/adguardhome/work
       - ${DOCKER_DIR}/adguard/conf:/opt/adguardhome/conf
 
-  internal-npm:
-    image: 'jc21/nginx-proxy-manager:latest'
-    container_name: network-internal-npm
+  caddy:
+    image: serfriz/caddy-cloudflare:latest
+    container_name: core-caddy
     restart: unless-stopped
     ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CF_TOKEN}
     volumes:
-      - ${DOCKER_DIR}/npm/data:/data
-      - ${DOCKER_DIR}/npm/letsencrypt:/etc/letsencrypt
+      - ${DOCKER_DIR}/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${DOCKER_DIR}/caddy/data:/data
+      - ${DOCKER_DIR}/caddy/config:/config
     networks:
-      - npm-lan
-    
+      - proxy-core
+
 networks:
-  npm-lan:
+  proxy-core:
     driver: bridge
-    name: npm-lan
+    name: proxy-core
 

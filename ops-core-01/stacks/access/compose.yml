@@ -1,7 +1,7 @@
 services:
   vaultwarden:
     image: vaultwarden/server:latest
-    container_name: vaultwarden
+    container_name: access-vaultwarden
     restart: always
     environment:
       - ADMIN_TOKEN=${ADMIN_TOKEN}
@@ -13,9 +13,9 @@ services:
     ports:
       - "9445:80"
     networks:
-      - npm-lan
+      - proxy-core
 
 networks:
-  npm-lan:
+  proxy-core:
     external: true
-    driver: bridge
+    name: proxy-core

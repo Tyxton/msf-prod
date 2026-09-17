@@ -1,11 +1,12 @@
 services:
   dockge:
     image: louislam/dockge:latest
+    container_name: core-dockge
     restart: unless-stopped
     ports:
       - "5001:5001"
     networks:
-      - npm-lan
+      - proxy-core
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${DOCKER_DIR}/dockge:/app/data
@@ -14,6 +15,6 @@ services:
       - DOCKGE_STACKS_DIR=/opt/stacks
 
 networks:
-  npm-lan:
+  proxy-core:
     external: true
-    name: npm-lan
+    name: proxy-core

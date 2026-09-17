@@ -1,0 +1,48 @@
+services:
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: edge-agh
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - "${DOCKER_DIR}/adguard/work:/opt/adguardhome/work"
+      - "${DOCKER_DIR}/adguard/conf:/opt/adguardhome/conf"
+
+  caddy:
+    image: serfriz/caddy-cloudflare:latest
+    container_name: edge-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CF_TOKEN}
+    volumes:
+      - ${DOCKER_DIR}/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${DOCKER_DIR}/caddy/data:/data
+      - ${DOCKER_DIR}/caddy/config:/config
+    networks:
+      - proxy-edge
+
+  authelia:
+    image: authelia/authelia:latest
+    container_name: auth-authelia
+    restart: unless-stopped
+    ports:
+      - "${HOST_IP}:9091:9091"
+    environment:
+      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT}
+      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION}
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE}
+    volumes:
+      - ${DOCKER_DIR}/authelia/config:/config
+    networks:
+      - proxy-edge
+
+networks:
+  proxy-edge:
+    name: proxy-edge
+    driver: bridge
+
+      

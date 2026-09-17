@@ -4,7 +4,7 @@ services:
     container_name: bdtracker
     restart: unless-stopped
     networks:
-      - npm-edge
+      - proxy-edge
     ports:
       - "8000:8000"
     volumes:
@@ -16,6 +16,6 @@ services:
       - BD_ADMIN_MASTER_KEY=${MASTER_KEY}
 
 networks:
-  npm-edge:
+  proxy-edge:
     external: true
-    name: npm-edge
+    name: proxy-edge

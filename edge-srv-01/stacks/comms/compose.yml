@@ -16,12 +16,12 @@ services:
       - ${DOCKER_DIR}/ntfy/etc:/etc/ntfy
       - ${DOCKER_DIR}/ntfy/lib:/var/lib/ntfy
     networks:
-      -  npm-edge
+      -  proxy-edge
     ports:
       - 8080:80
     restart: unless-stopped
 
 networks:
-  npm-edge:
+  proxy-edge:
     external: true
-    name: npm-edge
+    name: proxy-edge

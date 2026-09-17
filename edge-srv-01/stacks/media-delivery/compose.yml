@@ -17,7 +17,7 @@ services:
       - ${DOCKER_DIR}/jellyfin/config:/config
     restart: unless-stopped
     networks:
-      npm-edge:
+      proxy-edge:
         aliases:
           - media-jellyfin
     deploy:
@@ -45,9 +45,11 @@ services:
       - TZ=${TZ:-America/Chicago}
     restart: unless-stopped
     networks:
-      - npm-edge
+      proxy-edge:
+        aliases:
+          - media-seerr
 
 networks:
-  npm-edge:
+  proxy-edge:
     external: true
-    name: npm-edge
+    name: proxy-edge
