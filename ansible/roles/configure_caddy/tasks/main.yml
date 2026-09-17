@@ -1,0 +1,17 @@
+- name: Ensure Caddy dir exists
+  ansible.builtin.file:
+    path: "/opt/docker-data/caddy"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Render and deploy Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: "/opt/docker-data/caddy/Caddyfile"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true

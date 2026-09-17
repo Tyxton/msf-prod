@@ -1,0 +1,102 @@
+# --- MANAGED BY ANSIBLE --- #
+{
+{% if 'core_proxy' in group_names | default([]) %}
+    acme_dns cloudflare {{ vault_cloudflare_core_token }}
+{% elif 'edge_proxy' in group_names | default([]) %}
+    acme_dns cloudflare {{ vault_cloudflare_edge_token }}
+{% endif %}
+}
+
+(default-headers) {
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        X-Content-Type-Options "nosniff"
+        Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+    }
+}
+
+(authelia-gate) {
+{% if 'edge_proxy' in group_names | default([]) %}
+    forward_auth auth-authelia:9091 {
+{% elif 'core_proxy' in group_names | default([]) %}
+    forward_auth {{ edge_srv_01_ip }}:9091 {
+{% endif %}
+        uri /api/verify?rd=https://auth.nottyxton.net
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+    }
+}
+
+{% if 'core_proxy' in group_names | default([]) %}
+*.local.nottyxton.net {
+    tls {
+        dns cloudflare {{ vault_cloudflare_core_token }}
+        resolvers 1.1.1.1 1.0.0.1
+
+        propagation_delay 60s
+        propagation_timeout 10m
+    }
+    import default-headers
+
+{% for proxy in core_proxies %}
+    @proxy_core_{{ loop.index }} host {{ proxy.domain }}
+    handle @proxy_core_{{ loop.index }} {
+{% if proxy.auth_policy in ['one_factor', 'two_factor'] %}
+{% if proxy.bypass_whitelist | default(false) %}
+        @internal remote_ip 10.0.0.0/8
+        handle @internal {
+            reverse_proxy {{ proxy.target }}
+        }
+{% endif %}
+        import authelia-gate
+{% endif %}
+        reverse_proxy {{ proxy.target }}
+    }
+{% endfor %}
+
+    handle {
+        respond "Service Not Found" 404
+    }
+}
+{% endif %}
+
+{% if 'edge_proxy' in group_names | default([]) %}
+*.nottyxton.net, nottyxton.net {
+    tls {
+        dns cloudflare {{ vault_cloudflare_edge_token }}
+        resolvers 1.1.1.1 1.0.0.1
+
+        propagation_delay 60s
+        propagation_timeout 10m
+    }
+    import default-headers
+
+    @auth host auth.nottyxton.net
+    handle @auth {
+        reverse_proxy auth-authelia:9091
+    }
+
+    @apex host nottyxton.net
+    handle @apex {
+        redir https://www.nottyxton.net{uri} permanent
+    }
+
+{% for proxy in edge_proxies %}
+    @proxy_edge_{{ loop.index }} host {{ proxy.domain }}
+    handle @proxy_edge_{{ loop.index }} {
+{% if proxy.redirect is defined and proxy.redirect %}
+        redir {{ proxy.target }} permanent
+{% else %}
+{% if proxy.auth_policy in ['one_factor', 'two_factor'] %}
+        import authelia-gate
+{% endif %}
+        reverse_proxy {{ proxy.target }}
+{% endif %}
+    }
+{% endfor %}
+
+    handle {
+        respond "Service Not Found" 404
+    }
+}
+{% endif %}

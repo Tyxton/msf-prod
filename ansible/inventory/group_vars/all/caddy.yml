@@ -1,0 +1,173 @@
+#---++====++---#
+# [ INTERNAL ] #
+#---++====++---#
+
+core_proxies:
+  # INFRA
+  - name: raiden
+    domain: raiden.local.nottyxton.net
+    target: "{{ hostvars['raiden']['ansible_host'] }}:8006"
+    auth_policy: two_factor
+  - name: motherbase
+    domain: motherbase.local.nottyxton.net
+    target: "{{ hostvars['motherbase']['ansible_host'] }}:443"
+    auth_policy: two_factor
+  - name: unifi
+    domain: unifi.local.nottyxton.net
+    target: "{{ hostvars['ufi-ucg-m']['ansible_host'] }}:443"
+    auth_policy: two_factor
+  - name: dockge
+    domain: dockge.local.nottyxton.net
+    target: core-dockge:5001 
+    auth_policy: two_factor
+
+  # NETWORKING
+  - name: adguard-core
+    domain: agh-core.local.nottyxton.net
+    target: "{{ hostvars['ops-core-01']['ansible_host'] }}:8080"
+    auth_policy: two_factor
+  - name: crowdsec-core
+    domain: cs-core.local.nottyxton.net
+    target: "{{ hostvars['ops-core-01']['ansible_host'] }}:8085"
+    auth_policy: two_factor
+
+  # ITIM
+  - name: grafana
+    domain: grafana.local.nottyxton.net
+    target: monitoring-grafana:3000
+    auth_policy: one_factor
+    bypass_whitelist: true
+  - name: alloy-agg
+    domain: alloy.local.nottyxton.net
+    target: alloy:3001
+    auth_policy: bypass
+  - name: prometheus
+    domain: prom.local.nottyxton.net
+    target: monitoring-prometheus:9090
+    auth_policy: two_factor
+  - name: loki
+    domain: loki.local.nottyxton.net
+    target: monitoring-loki:3100
+    auth_policy: two_factor
+  - name: graphite
+    domain: graphite.local.nottyxton.net
+    target: monitoring-graphite:9108
+    auth_policy: bypass
+  - name: unpoller
+    domain: unpoller.local.nottyxton.net
+    target: monitoring-unpoller:9130
+    auth_policy: bypass
+  - name: uptime-kuma
+    domain: kuma.local.nottyxton.net
+    target: monitoring-kuma:3001
+    auth_policy: one_factor
+
+  # MEDIA
+  - name: bazarr
+    domain: bazarr.local.nottyxton.net
+    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:6767"
+    auth_policy: one_factor
+  - name: sonarr
+    domain: sonarr.local.nottyxton.net
+    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:8989"
+    auth_policy: one_factor
+  - name: radarr
+    domain: radarr.local.nottyxton.net
+    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:7878"
+    auth_policy: one_factor
+  - name: prowlarr
+    domain: prowlarr.local.nottyxton.net
+    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:9696"
+    auth_policy: two_factor
+  - name: sabnzbd
+    domain: sab.local.nottyxton.net
+    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:8080"
+    auth_policy: one_factor
+  - name: rtdclient
+    domain: rtdc.local.nottyxton.net
+    target: "{{ hostvars['media-proc-01']['ansible_host'] }}:6500"
+    auth_policy: one_factor
+
+  - name: immich
+    domain: immich.local.nottyxton.net
+    target: "{{ hostvars['data-imgs-01']['ansible_host'] }}:2283"
+    auth_policy: bypass
+
+  - name: syncthing
+    domain: sync.local.nottyxton.net
+    target: "{{ hostvars['data-sync-01']['ansible_host'] }}:8384"
+    auth_policy: two_factor
+
+  # MISC
+  - name: actual-budget
+    domain: actual.local.nottyxton.net
+    target: "{{ hostvars['data-fin-01']['ansible_host'] }}:5006"
+    auth_policy: one_factor
+  - name: vaultwarden
+    domain: vault.local.nottyxton.net
+    target: access-vaultwarden:80
+    auth_policy: bypass
+  - name: homepage
+    domain: home.local.nottyxton.net
+    target: home-homepage:3000
+    auth_policy: bypass
+  - name: homeassistant
+    domain: hass.local.nottyxton.net
+    target: "{{ hostvars['ops-core-01']['ansible_host'] }}:8123"
+    auth_policy: bypass
+
+#---++====++---#
+# [ EXTERNAL ] #
+#---++====++---#
+
+edge_proxies:
+  - name: bdtracker
+    domain: bdtracker.nottyxton.net
+    target: bdtracker:8000
+    auth_policy: bypass
+  - name: jellyfin
+    domain: watch.nottyxton.net
+    target: media-jellyfin:8096
+    auth_policy: bypass
+  - name: seerr
+    domain: seerr.nottyxton.net
+    target: media-seerr:5055
+    auth_policy: bypass
+  - name: seer-redir
+    domain: seer.nottyxton.net
+    target: https://seerr.nottyxton.net
+    redirect: true
+    auth_policy: bypass
+
+  - name: nottyxton
+    domain: www.nottyxton.net
+    target: nottyxton-web:80
+    auth_policy: bypass
+  - name: blog
+    domain: blog.nottyxton.net
+    target: nottyxton-blog:80
+    auth_policy: bypass
+
+  - name: ntfy
+    domain: ntfy.nottyxton.net
+    target: comms-ntfy:80
+    auth_policy: two_factor
+
+  - name: freshrss
+    domain: freshrss.nottyxton.net
+    target: feeds-freshrss:80
+    auth_policy: one_factor
+  - name: znc
+    domain: znc.nottyxton.net
+    target: feeds-znc:6697
+    auth_policy: two_factor
+  - name: rssbridge
+    domain: rssbridge.nottyxton.net
+    target: feeds-rssbridge:80
+    auth_policy: one_factor
+
+  # Edge Internal Domains
+  - name: agh-edge
+    domain: agh-edge.nottyxton.net
+    target: "{{ hostvars['edge-srv-01']['ansible_host'] }}:8080"
+    auth_policy: two_factor
