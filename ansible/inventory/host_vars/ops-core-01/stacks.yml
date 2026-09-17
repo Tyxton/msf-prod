@@ -5,13 +5,6 @@ stacks:
     env:
       ADMIN_TOKEN: "{{ vault_vaultwarden_admin_token }}"
       DOMAIN: "{{ vault_vaultwarden_domain }}"
-  - name: dev-tools
-    features: []
-    exclude_features: ['tz', 'docker_dir']
-    env:
-      GITEA_UID: "{{ vault_gitea_uid }}"
-      GITEA_GID: "{{ vault_gitea_gid }}"
-      GITEA_MNT: "{{ vault_gitea_mnt }}"
   - name: home
     features: []
     env:
@@ -33,5 +26,7 @@ stacks:
     features: []
     exclude_features: ['tz']
     env:
-      COLLECTIONS_LIST: "{{ vault_crowdsec_collections }}"
+      CF_TOKEN: "{{ vault_cloudflare_core_token }}"
+      BASIC_AUTH: "{{ vault_traefik_core_auth }}"
+      CONTACT_EMAIL: "{{ vault_contact_email }}"
       

@@ -12,8 +12,15 @@ stacks:
     exclude_features: ['tz']
     env:
       NTFY_URL: "{{ vault_ntfy_base_url }}"
-  - name: edge-network
+  - name: network
     features: []
+    exclude_features: ['tz']
+    env:
+      HOST_IP: "{{ edge_srv_01_ip }}"
+      CF_TOKEN: "{{ vault_cloudflare_edge_token }}"
+      AUTHELIA_JWT: "{{ vault_authelia_jwt_secret }}"
+      AUTHELIA_SESSION: "{{ vault_authelia_session_secret }}"
+      AUTHELIA_STORAGE: "{{ vault_authelia_storage_secret }}"
   - name: hytale-server
     features: []
   - name: infra
