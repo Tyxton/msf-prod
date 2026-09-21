@@ -55,7 +55,12 @@
 {% endfor %}
 
     handle {
-        respond "Service Not Found" 404
+        redir https://www.nottyxton.net/#system_not_found 302
+    }
+
+    handle_errors {
+        @404 status 404
+        redir @404 https://www.nottyxton.net/#system_not_found 302
     }
 }
 {% endif %}
@@ -96,7 +101,12 @@
 {% endfor %}
 
     handle {
-        respond "Service Not Found" 404
+        redir https://www.nottyxton.net/#system_not_found 302
+    }
+
+    handle_errors {
+        @404 status 404
+        redir @404 https://www.nottyxton.net/#system_not_found 302
     }
 }
 {% endif %}
